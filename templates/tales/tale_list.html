@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}Tales | Eternal Memories{% endblock %}
+{% block content %}
+<div class="fade-in">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-3xl font-playfair text-soft-gold">Tales</h1>
+    {% if user.is_authenticated %}
+      <a href="{% url 'tales:create' %}" class="px-4 py-2 celestial-button rounded">
+        <i class="fas fa-feather mr-2"></i>Write a Tale
+      </a>
+    {% endif %}
+  </div>
+
+  <form method="get" class="flex mb-6">
+    <input type="text" name="q" value="{{ request.GET.q }}" placeholder="Search tales..."
+           class="px-4 py-2 rounded-l bg-midnight-blue text-ivory-white focus:outline-none">
+    <button class="px-4 py-2 rounded-r celestial-button">Search</button>
+  </form>
+
+  {% if tales %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {% for t in tales %}
+        <a href="{% url 'tales:detail' slug=t.slug %}" class="block">
+          <div class="celestial-card p-5 h-full">
+            <h3 class="text-xl font-playfair text-soft-gold">{{ t.title }}</h3>
+            {% if t.subtitle %}<p class="text-faint-lavender mt-1">{{ t.subtitle }}</p>{% endif %}
+            <p class="text-faint-lavender mt-3 line-clamp-3">{{ t.description|default:"No description" }}</p>
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="celestial-card p-10 text-center">
+      <p class="text-faint-lavender">No tales yet.</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

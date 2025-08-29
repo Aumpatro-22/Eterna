@@ -1,0 +1,184 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Sign Up | Eternal Memories{% endblock %}
+
+{% block extra_css %}
+<style>
+    .auth-container {
+        max-width: 500px;
+        margin: 0 auto;
+    }
+    
+    .auth-form {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .auth-form::before {
+        content: '';
+        position: absolute;
+        top: -50px;
+        right: -50px;
+        width: 100px;
+        height: 100px;
+        background: radial-gradient(circle, rgba(212, 175, 55, 0.3) 0%, transparent 70%);
+        border-radius: 50%;
+        z-index: 0;
+    }
+    
+    .auth-form::after {
+        content: '';
+        position: absolute;
+        bottom: -50px;
+        left: -50px;
+        width: 100px;
+        height: 100px;
+        background: radial-gradient(circle, rgba(230, 230, 250, 0.2) 0%, transparent 70%);
+        border-radius: 50%;
+        z-index: 0;
+    }
+    
+    .form-group {
+        position: relative;
+        margin-bottom: 1.5rem;
+    }
+    
+    .star-field-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        pointer-events: none;
+        overflow: hidden;
+        z-index: -1;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-container fade-in">
+    <div class="text-center mb-8">
+        <i class="fas fa-user-plus text-soft-gold text-4xl mb-4"></i>
+        <h1 class="text-3xl font-bold memorial-name">Create an Account</h1>
+        <p class="text-faint-lavender mt-2">Join Eternal Memories to honor and remember your loved ones</p>
+    </div>
+    
+    <div class="celestial-card p-6 auth-form">
+        <div class="star-field-overlay" id="register-stars"></div>
+        
+        <form method="post" class="space-y-4 relative z-10">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="{{ form.username.id_for_label }}" class="block text-ivory-white font-medium mb-2">
+                    <i class="fas fa-user text-soft-gold mr-2 opacity-70"></i>Username
+                </label>
+                {{ form.username }}
+                {% if form.username.errors %}
+                    <p class="text-red-400 text-sm mt-1">{{ form.username.errors.0 }}</p>
+                {% endif %}
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="form-group">
+                    <label for="{{ form.first_name.id_for_label }}" class="block text-ivory-white font-medium mb-2">
+                        <i class="fas fa-address-card text-soft-gold mr-2 opacity-70"></i>First Name
+                    </label>
+                    {{ form.first_name }}
+                    {% if form.first_name.errors %}
+                        <p class="text-red-400 text-sm mt-1">{{ form.first_name.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.last_name.id_for_label }}" class="block text-ivory-white font-medium mb-2">
+                        <i class="fas fa-address-card text-soft-gold mr-2 opacity-70"></i>Last Name
+                    </label>
+                    {{ form.last_name }}
+                    {% if form.last_name.errors %}
+                        <p class="text-red-400 text-sm mt-1">{{ form.last_name.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.email.id_for_label }}" class="block text-ivory-white font-medium mb-2">
+                    <i class="fas fa-envelope text-soft-gold mr-2 opacity-70"></i>Email
+                </label>
+                {{ form.email }}
+                {% if form.email.errors %}
+                    <p class="text-red-400 text-sm mt-1">{{ form.email.errors.0 }}</p>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.password1.id_for_label }}" class="block text-ivory-white font-medium mb-2">
+                    <i class="fas fa-lock text-soft-gold mr-2 opacity-70"></i>Password
+                </label>
+                {{ form.password1 }}
+                {% if form.password1.errors %}
+                    <p class="text-red-400 text-sm mt-1">{{ form.password1.errors.0 }}</p>
+                {% endif %}
+                <p class="text-faint-lavender text-xs mt-1">{{ form.password1.help_text }}</p>
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.password2.id_for_label }}" class="block text-ivory-white font-medium mb-2">
+                    <i class="fas fa-lock text-soft-gold mr-2 opacity-70"></i>Confirm Password
+                </label>
+                {{ form.password2 }}
+                {% if form.password2.errors %}
+                    <p class="text-red-400 text-sm mt-1">{{ form.password2.errors.0 }}</p>
+                {% endif %}
+            </div>
+            
+            <div class="pt-4">
+                <button type="submit" class="w-full py-2 celestial-button rounded">
+                    <i class="fas fa-star mr-2"></i> Create Account
+                </button>
+            </div>
+        </form>
+        
+        <div class="mt-6 text-center">
+            <p class="text-faint-lavender">
+                Already have an account? 
+                <a href="{% url 'login' %}" class="celestial-link text-soft-gold">Sign in</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Create mini star field for registration form
+        const starContainer = document.getElementById('register-stars');
+        if (starContainer) {
+            for (let i = 0; i < 20; i++) {
+                const star = document.createElement('div');
+                const x = Math.random() * 100;
+                const y = Math.random() * 100;
+                const size = Math.random() * 2 + 0.5;
+                const opacity = Math.random() * 0.5 + 0.2;
+                
+                star.style.cssText = `
+                    position: absolute;
+                    top: ${y}%;
+                    left: ${x}%;
+                    width: ${size}px;
+                    height: ${size}px;
+                    background-color: rgba(255, 255, 255, ${opacity});
+                    border-radius: 50%;
+                    box-shadow: 0 0 ${size * 2}px rgba(255, 255, 255, 0.8);
+                    animation: twinkle ${Math.random() * 5 + 3}s infinite alternate;
+                `;
+                
+                starContainer.appendChild(star);
+            }
+        }
+    });
+</script>
+{% endblock %}

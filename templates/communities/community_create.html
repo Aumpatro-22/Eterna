@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}Create Community | Eternal Memories{% endblock %}
+
+{% block content %}
+<div class="max-w-xl mx-auto fade-in">
+  <h1 class="text-3xl font-playfair text-soft-gold mb-6">Create Community</h1>
+  <div class="celestial-card p-6">
+    <form method="post" class="space-y-4">
+      {% csrf_token %}
+      <div>
+        <label class="block mb-1">Name</label>
+        {{ form.name }}
+      </div>
+      <div>
+        <label class="block mb-1">Description</label>
+        {{ form.description }}
+      </div>
+      <div class="flex items-center space-x-2">
+        {{ form.is_public }} <label>Public</label>
+      </div>
+      <div class="flex justify-end">
+        <button class="px-6 py-2 celestial-button rounded"><i class="fas fa-check mr-2"></i>Create</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

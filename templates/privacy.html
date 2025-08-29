@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% block title %}Privacy Policy | Eternal Memories{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-8 fade-in">
+  <header class="text-center">
+    <h1 class="text-4xl font-playfair text-soft-gold">Privacy Policy</h1>
+    <p class="text-faint-lavender mt-2">Effective date: {{ now|date:"F d, Y" }}</p>
+    <p class="text-faint-lavender mt-1">Status: Public Beta</p>
+  </header>
+
+  <section class="celestial-card p-6">
+    <h2 class="text-2xl font-playfair text-soft-gold mb-3">Summary</h2>
+    <ul class="list-disc pl-6 text-ivory-white space-y-2">
+      <li>We are in a beta phase; features may change and we’re actively improving reliability and safety.</li>
+      <li>We may use your content and usage data to improve our models and services.</li>
+      <li>We do not sell your personal data to third parties.</li>
+      <li>You can request deletion of your content/account at any time.</li>
+    </ul>
+  </section>
+
+  <section class="celestial-card p-6">
+    <h2 class="text-2xl font-playfair text-soft-gold mb-3">What We Collect</h2>
+    <ul class="list-disc pl-6 text-ivory-white space-y-2">
+      <li>Account data: username, name, email.</li>
+      <li>Content you submit: memorials, messages, images, tales, reactions.</li>
+      <li>Usage data: device/browser info, IP address (short-lived), pages visited, interactions.</li>
+      <li>Cookies/local storage to keep you signed in and improve UX.</li>
+    </ul>
+  </section>
+
+  <section class="celestial-card p-6">
+    <h2 class="text-2xl font-playfair text-soft-gold mb-3">How We Use Data</h2>
+    <ul class="list-disc pl-6 text-ivory-white space-y-2">
+      <li>Operate, maintain, and secure the service.</li>
+      <li>Improve features and quality, including training, evaluating, and tuning AI models.</li>
+      <li>Communicate about updates, security notices, or support.</li>
+      <li>Enforce our policies and comply with law.</li>
+    </ul>
+  </section>
+
+  <section class="celestial-card p-6">
+    <h2 class="text-2xl font-playfair text-soft-gold mb-3">AI and Model Training</h2>
+    <p class="text-ivory-white">
+      In beta, we may use submitted content and usage data to train and improve our AI systems (e.g., story/imagery generation and recommendations).
+      We apply technical and organizational safeguards to reduce risks and respect memorial contexts.
+    </p>
+    <p class="text-ivory-white mt-3">
+      If you prefer your content not be used for future model training, contact us and we’ll apply an opt-out to new training runs. Note: content used in prior training may not be fully removable from existing models, but we will exclude it from future training to the extent feasible.
+    </p>
+  </section>
+
+  <section class="celestial-card p-6">
+    <h2 class="text-2xl font-playfair text-soft-gold mb-3">Sharing</h2>
+    <ul class="list-disc pl-6 text-ivory-white space-y-2">
+      <li>We do not sell your personal data.</li>
+      <li>Service providers (hosting, storage, email, analytics) may process data under contract and only for our purposes.</li>
+      <li>Public content you choose to publish (e.g., public memorials/tales) is visible to others.</li>
+      <li>We may disclose data to comply with legal requests or to protect safety, rights, and integrity of the service.</li>
+    </ul>
+  </section>
+
+  <section class="celestial-card p-6">
+    <h2 class="text-2xl font-playfair text-soft-gold mb-3">Retention and Deletion</h2>
+    <p class="text-ivory-white">
+      We retain data as long as needed to provide the service and for legitimate interests (security, compliance). You can request deletion of your account and content. Some backups/logs may persist for a limited time. Training data already incorporated into models may not be fully extractable; however, we will exclude your content from future training when you opt out.
+    </p>
+  </section>
+
+  <section class="celestial-card p-6">
+    <h2 class="text-2xl font-playfair text-soft-gold mb-3">Security</h2>
+    <p class="text-ivory-white">
+      We use reasonable technical and organizational measures to protect data. No system is 100% secure; please use strong, unique passwords.
+    </p>
+  </section>
+
+  <section class="celestial-card p-6">
+    <h2 class="text-2xl font-playfair text-soft-gold mb-3">Children</h2>
+    <p class="text-ivory-white">
+      This service is not directed to children under 13. If we learn we’ve collected personal data from a child without consent, we will delete it.
+    </p>
+  </section>
+
+  <section class="celestial-card p-6">
+    <h2 class="text-2xl font-playfair text-soft-gold mb-3">International Transfers</h2>
+    <p class="text-ivory-white">
+      Data may be processed in locations where we or our providers operate. We take steps to protect data according to this Policy regardless of location.
+    </p>
+  </section>
+
+  <section class="celestial-card p-6">
+    <h2 class="text-2xl font-playfair text-soft-gold mb-3">Changes</h2>
+    <p class="text-ivory-white">
+      We may update this Policy as we iterate in beta. We’ll post changes here and update the effective date.
+    </p>
+  </section>
+
+  <section class="celestial-card p-6">
+    <h2 class="text-2xl font-playfair text-soft-gold mb-3">Contact</h2>
+    <p class="text-ivory-white">
+      Questions or requests (including training opt-out or deletion)? Please reach out via our
+      <a href="{% url 'contact' %}" class="celestial-link">Contact</a> page.
+    </p>
+  </section>
+</div>
+{% endblock %}

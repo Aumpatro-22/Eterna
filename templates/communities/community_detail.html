@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+{% block title %}{{ community.name }} | Communities{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 fade-in">
+  <!-- Sidebar -->
+  <aside class="md:col-span-1 celestial-card p-4 h-full">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="text-xl font-playfair text-soft-gold">{{ community.name }}</h2>
+      {% if is_member %}
+        <a href="{% url 'communities:leave' slug=community.slug %}" class="text-rose-tint hover:text-ivory-white text-sm">Leave</a>
+      {% else %}
+        {% if user.is_authenticated %}
+          <a href="{% url 'communities:join' slug=community.slug %}" class="text-soft-gold hover:text-ivory-white text-sm">Join</a>
+        {% endif %}
+      {% endif %}
+    </div>
+    <p class="text-faint-lavender text-sm mb-4">{{ community.description }}</p>
+    <div class="text-xs text-faint-lavender mb-2"><i class="fas fa-hashtag text-soft-gold mr-1"></i>Channels</div>
+    <ul class="space-y-1">
+      {% for ch in channels %}
+        <li>
+          <a href="{% url 'communities:detail' slug=community.slug %}?c={{ ch.slug }}"
+             class="block px-3 py-2 rounded hover:bg-white hover:bg-opacity-5 {% if ch.id == channel.id %}bg-white bg-opacity-5{% endif %}">
+            # {{ ch.name }}
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  </aside>
+
+  <!-- Chat -->
+  <section class="md:col-span-3 celestial-card p-4">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-lg text-soft-gold"># {{ channel.name }}</h3>
+      <div class="text-xs text-faint-lavender">{{ messages|length }} recent messages</div>
+    </div>
+
+    <div id="chat-log" class="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
+      {% for m in messages %}
+        <div class="border-b border-soft-gold border-opacity-10 pb-2">
+          <div class="text-sm text-faint-lavender">{{ m.author.username }} • {{ m.created_at|date:"M d, Y H:i" }}</div>
+          <div class="text-ivory-white whitespace-pre-line">{{ m.content }}</div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="mt-4">
+      {% if is_member %}
+        <form id="chat-form" action="{% url 'communities:post_message' slug=community.slug channel_slug=channel.slug %}" method="post" class="space-y-2">
+          {% csrf_token %}
+          {{ form.content }}
+          <button type="submit" class="w-full py-2 celestial-button rounded"><i class="fas fa-paper-plane mr-2"></i>Send</button>
+        </form>
+      {% else %}
+        <div class="text-center text-faint-lavender">
+          Join to send messages.
+        </div>
+      {% endif %}
+    </div>
+  </section>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  (function() {
+    // Channel selection via query param ?c=
+    const params = new URLSearchParams(window.location.search);
+    const chan = params.get('c');
+    if (chan && window.location.pathname.endsWith('/')) {
+      // server handled channel; nothing to do
+    }
+
+    const chatLog = document.getElementById('chat-log');
+    const form = document.getElementById('chat-form');
+    let lastTs = null;
+    const feedUrl = "{% url 'communities:messages_feed' slug=community.slug channel_slug=channel.slug %}";
+
+    function scrollBottom() {
+      chatLog.scrollTop = chatLog.scrollHeight;
+    }
+    scrollBottom();
+
+    if (form) {
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const data = new FormData(form);
+        fetch(form.action, {
+          method: 'POST',
+          body: data,
+          headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        }).then(r => r.json()).then(res => {
+          if (res.status === 'success') {
+            appendMsg({author: res.author, content: res.content, created_at: new Date().toISOString()});
+            form.reset();
+          }
+        });
+      });
+    }
+
+    function appendMsg(m) {
+      const wrap = document.createElement('div');
+      wrap.className = "border-b border-soft-gold border-opacity-10 pb-2";
+      wrap.innerHTML = `
+        <div class="text-sm text-faint-lavender">${m.author} • ${new Date(m.created_at).toLocaleString()}</div>
+        <div class="text-ivory-white whitespace-pre-line">${escapeHtml(m.content)}</div>
+      `;
+      chatLog.appendChild(wrap);
+      scrollBottom();
+      lastTs = m.created_at;
+    }
+
+    function escapeHtml(str) {
+      return (str || '').replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
+    }
+
+    function poll() {
+      const url = lastTs ? `${feedUrl}?since=${encodeURIComponent(lastTs)}` : feedUrl;
+      fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' }}).then(r => r.json()).then(res => {
+        (res.results || []).forEach(appendMsg);
+      }).finally(() => {
+        setTimeout(poll, 4000);
+      });
+    }
+    poll();
+  })();
+</script>
+{% endblock %}

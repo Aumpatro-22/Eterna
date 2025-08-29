@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Update Memorial | Eternal Memories{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto fade-in">
+    <h1 class="text-3xl font-bold memorial-name mb-6">Update Memorial</h1>
+    
+    <div class="celestial-card p-6">
+        <form method="post" enctype="multipart/form-data" class="space-y-6">
+            {% csrf_token %}
+            
+            <!-- Name and Dates -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="form-group">
+                    <label for="{{ form.name.id_for_label }}" class="block text-ivory-white font-medium mb-2">Full Name</label>
+                    {{ form.name }}
+                    {% if form.name.errors %}
+                        <p class="text-red-400 text-sm mt-1">{{ form.name.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="form-group">
+                        <label for="{{ form.date_of_birth.id_for_label }}" class="block text-ivory-white font-medium mb-2">Date of Birth</label>
+                        {{ form.date_of_birth }}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.date_of_passing.id_for_label }}" class="block text-ivory-white font-medium mb-2">Date of Passing</label>
+                        {{ form.date_of_passing }}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Biography -->
+            <div class="form-group">
+                <label for="{{ form.biography.id_for_label }}" class="block text-ivory-white font-medium mb-2">Biography</label>
+                {{ form.biography }}
+                {% if form.biography.errors %}
+                    <p class="text-red-400 text-sm mt-1">{{ form.biography.errors.0 }}</p>
+                {% endif %}
+                <p class="text-faint-lavender text-sm mt-1">Share their story, who they were, what they loved, and how they lived.</p>
+            </div>
+            
+            <!-- Current Image -->
+            {% if memorial.image %}
+                <div class="border-t border-soft-gold border-opacity-20 pt-6">
+                    <h2 class="text-xl font-semibold mb-4 memorial-name">Current Memorial Photo</h2>
+                    {% if memorial.is_ai_generated_image %}
+                        <div class="celestial-frame w-48 h-48 mb-4 mx-auto">
+                            <img src="{{ memorial.image.url }}" alt="Current memorial image" class="w-full h-full object-cover">
+                        </div>
+                    {% else %}
+                        <div class="w-48 h-48 mb-4 overflow-hidden rounded-lg mx-auto">
+                            <img src="{{ memorial.image.url }}" alt="Current memorial image" class="w-full h-full object-cover">
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+            
+            <!-- Image Upload or AI Generation -->
+            <div class="border-t border-soft-gold border-opacity-20 pt-6">
+                <h2 class="text-xl font-semibold mb-4 memorial-name">Update Memorial Photo</h2>
+                
+                <div class="mb-4 flex items-center">
+                    {{ form.use_ai_image }}
+                    <label for="{{ form.use_ai_image.id_for_label }}" class="ml-2 text-ivory-white">
+                        {{ form.use_ai_image.label }}
+                    </label>
+                </div>
+                
+                <!-- Standard Image Upload -->
+                <div id="standard-image-upload" class="mb-4">
+                    <label for="{{ form.image.id_for_label }}" class="block text-ivory-white font-medium mb-2">Upload a New Image</label>
+                    {{ form.image }}
+                    <p class="text-faint-lavender text-sm mt-1">Leave empty to keep the current image.</p>
+                </div>
+                
+                <!-- AI Image Generation -->
+                <div id="ai-image-generation" class="hidden">
+                    <label for="{{ form.image_prompt.id_for_label }}" class="block text-ivory-white font-medium mb-2">Image Description</label>
+                    {{ form.image_prompt }}
+                    <p class="text-faint-lavender text-sm mt-1">{{ form.image_prompt.help_text }}</p>
+                </div>
+            </div>
+            
+            <!-- Tribute -->
+            <div class="border-t border-soft-gold border-opacity-20 pt-6">
+                <h2 class="text-xl font-semibold mb-4 memorial-name">Tribute</h2>
+                
+                <div class="mb-4 flex items-center">
+                    {{ form.generate_tribute }}
+                    <label for="{{ form.generate_tribute.id_for_label }}" class="ml-2 text-ivory-white">
+                        {{ form.generate_tribute.label }}
+                    </label>
+                </div>
+                
+                <!-- AI Tribute Generation Fields -->
+                <div id="ai-tribute-fields" class="space-y-4 hidden">
+                    <div class="form-group">
+                        <label for="{{ form.relationship.id_for_label }}" class="block text-ivory-white font-medium mb-2">Your Relationship</label>
+                        {{ form.relationship }}
+                        <p class="text-faint-lavender text-sm mt-1">{{ form.relationship.help_text }}</p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.memories.id_for_label }}" class="block text-ivory-white font-medium mb-2">Special Memories</label>
+                        {{ form.memories }}
+                        <p class="text-faint-lavender text-sm mt-1">{{ form.memories.help_text }}</p>
+                    </div>
+                </div>
+                
+                <!-- Manual Tribute Entry -->
+                <div id="manual-tribute-entry">
+                    <label for="{{ form.tribute.id_for_label }}" class="block text-ivory-white font-medium mb-2">Tribute Text</label>
+                    {{ form.tribute }}
+                    <p class="text-faint-lavender text-sm mt-1">Share a personal tribute or message in honor of your loved one.</p>
+                </div>
+            </div>
+            
+            <div class="flex justify-end space-x-3 border-t border-soft-gold border-opacity-20 pt-6">
+                <a href="{% url 'memorial_detail' memorial.pk %}" class="px-6 py-2 celestial-button rounded">
+                    Cancel
+                </a>
+                <button type="submit" class="px-6 py-2 bg-indigo-600 text-ivory-white rounded hover:bg-indigo-500 border border-indigo-400">
+                    <i class="fas fa-save mr-2"></i> Update Memorial
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const useAiImage = document.getElementById('{{ form.use_ai_image.id_for_label }}');
+        const standardImageUpload = document.getElementById('standard-image-upload');
+        const aiImageGeneration = document.getElementById('ai-image-generation');
+        
+        const generateTribute = document.getElementById('{{ form.generate_tribute.id_for_label }}');
+        const aiTributeFields = document.getElementById('ai-tribute-fields');
+        const manualTributeEntry = document.getElementById('manual-tribute-entry');
+        
+        // Handle image option toggle
+        useAiImage.addEventListener('change', function() {
+            if (this.checked) {
+                standardImageUpload.classList.add('hidden');
+                aiImageGeneration.classList.remove('hidden');
+            } else {
+                standardImageUpload.classList.remove('hidden');
+                aiImageGeneration.classList.add('hidden');
+            }
+        });
+        
+        // Handle tribute option toggle
+        generateTribute.addEventListener('change', function() {
+            if (this.checked) {
+                aiTributeFields.classList.remove('hidden');
+                manualTributeEntry.classList.add('hidden');
+            } else {
+                aiTributeFields.classList.add('hidden');
+                manualTributeEntry.classList.remove('hidden');
+            }
+        });
+    });
+</script>
+{% endblock %}

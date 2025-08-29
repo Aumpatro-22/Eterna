@@ -1,0 +1,233 @@
+/* Celestial Serenity Theme */
+
+:root {
+  /* Color Palette */
+  --midnight-blue: #121738;
+  --deep-space: #0a0e1a;
+  --soft-gold: #d4af37;
+  --ivory-white: #fffff0;
+  --faint-lavender: #e6e6fa;
+  --rose-tint: #fadadd;
+}
+
+/* Base Styling */
+body {
+  background-color: var(--deep-space);
+  background-image: 
+    radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 40px),
+    radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 30px),
+    radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 40px);
+  background-size: 550px 550px, 350px 350px, 250px 250px;
+  background-position: 0 0, 40px 60px, 130px 270px;
+  color: var(--ivory-white);
+  font-family: 'Lato', sans-serif;
+  transition: all 0.5s ease;
+}
+
+/* Typography */
+h1, h2, h3, .memorial-name {
+  font-family: 'Playfair Display', 'Cormorant Garamond', serif;
+  color: var(--soft-gold);
+}
+
+/* Form Elements */
+input, textarea, select {
+  background-color: rgba(18, 23, 56, 0.7) !important;
+  border: 1px solid rgba(212, 175, 55, 0.3) !important;
+  color: var(--ivory-white) !important;
+  border-radius: 0.375rem !important;
+  padding: 0.5rem 0.75rem !important;
+  transition: all 0.3s ease !important;
+}
+
+input:focus, textarea:focus, select:focus {
+  border-color: var(--soft-gold) !important;
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2) !important;
+  outline: none !important;
+}
+
+label {
+  color: var(--ivory-white) !important;
+  font-weight: 400 !important;
+}
+
+/* Card & Container Styling */
+.celestial-card {
+  background: rgba(18, 23, 56, 0.7);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+  transition: all 0.5s ease;
+}
+
+.celestial-card:hover {
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.28);
+  transform: translateY(-3px);
+}
+
+/* Button Styling */
+.celestial-button {
+  background: linear-gradient(45deg, var(--midnight-blue), var(--deep-space));
+  color: var(--soft-gold);
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  transition: all 0.4s ease;
+}
+
+.celestial-button:hover {
+  background: linear-gradient(45deg, var(--deep-space), var(--midnight-blue));
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+  color: var(--ivory-white);
+}
+
+/* Star/Constellation Effect */
+.star {
+  position: relative;
+  transform: scale(0.9);
+  opacity: 0.8;
+  transition: all 0.4s ease;
+}
+
+.star:hover {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.star::before {
+  content: '';
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background-color: var(--soft-gold);
+  top: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  box-shadow: 0 0 10px 2px rgba(212, 175, 55, 0.5);
+  animation: twinkle 4s infinite alternate;
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+/* Image Frame */
+.celestial-frame {
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid rgba(212, 175, 55, 0.3);
+  box-shadow: 0 0 25px rgba(212, 175, 55, 0.4);
+  position: relative;
+}
+
+.celestial-frame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, transparent 60%, rgba(230, 230, 250, 0.3));
+  pointer-events: none;
+}
+
+/* Page Transitions */
+.fade-in {
+  animation: fadeIn 1.2s ease forwards;
+  opacity: 0;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Header and Navigation */
+.celestial-header {
+  background: rgba(18, 23, 56, 0.8);
+  backdrop-filter: blur(10px);
+}
+
+/* Footer */
+.celestial-footer {
+  background: linear-gradient(to top, var(--deep-space), rgba(18, 23, 56, 0.7));
+  border-top: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+/* Animation Utilities */
+.floating {
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* Enhanced Links */
+a.celestial-link {
+  color: var(--soft-gold);
+  position: relative;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+a.celestial-link::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 1px;
+  bottom: -2px;
+  left: 0;
+  background-color: var(--soft-gold);
+  transition: width 0.3s ease;
+}
+
+a.celestial-link:hover::after {
+  width: 100%;
+}
+
+a.celestial-link:hover {
+  text-shadow: 0 0 8px rgba(212, 175, 55, 0.5);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--midnight-blue);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--soft-gold);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--ivory-white);
+}
+
+/* Improve accessible focus states for interactive elements */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid rgba(212, 175, 55, 0.8);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+}
+
+/* Optional hidden scrollbar utility (can be applied to scrollable areas) */
+.hidden-scrollbar::-webkit-scrollbar { display: none; }
+.hidden-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Respect user reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .fade-in,
+  .floating,
+  .star::before {
+    animation: none !important;
+    transition: none !important;
+  }
+}

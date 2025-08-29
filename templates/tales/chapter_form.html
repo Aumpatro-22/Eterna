@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Add Chapter | {{ tale.title }}{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto fade-in">
+  <h1 class="text-3xl font-playfair text-soft-gold mb-6">Add Chapter</h1>
+  <div class="celestial-card p-6">
+    <form method="post" class="space-y-4">
+      {% csrf_token %}
+      <div>
+        <label class="block text-ivory-white mb-1">Order</label>
+        {{ form.order }}
+      </div>
+      <div>
+        <label class="block text-ivory-white mb-1">Title</label>
+        {{ form.title }}
+      </div>
+      <div>
+        <label class="block text-ivory-white mb-1">Content</label>
+        {{ form.content }}
+      </div>
+      <div class="flex items-center gap-2">
+        {{ form.published }} <label>Published</label>
+      </div>
+      <div class="flex justify-between">
+        <a href="{% url 'tales:detail' slug=tale.slug %}" class="px-4 py-2 celestial-button rounded">Back</a>
+        <button class="px-6 py-2 celestial-button rounded"><i class="fas fa-check mr-2"></i>Save Chapter</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

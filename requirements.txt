@@ -1,0 +1,16 @@
+# Django core
+Django==4.2.7
+Pillow==10.1.0
+
+# API requests
+requests==2.31.0
+
+# For deployment
+dj-database-url==2.2.0
+gunicorn==21.2.0
+psycopg2-binary==2.9.9  # For PostgreSQL in production
+whitenoise==6.6.0  # For serving static files
+
+# Development tools
+django-debug-toolbar==4.2.0
+python-dotenv==1.0.0  # For loading environment variables

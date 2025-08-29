@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+{% block title %}About Us | Eternal Memories{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-8 fade-in">
+  <header class="text-center">
+    <h1 class="text-4xl font-playfair text-soft-gold">About Us</h1>
+    <p class="text-faint-lavender mt-2">Honoring stories. Preserving legacies.</p>
+  </header>
+
+  <!-- Project Description (NEW) -->
+  <section class="celestial-card p-6">
+    <h2 class="text-2xl font-playfair text-soft-gold mb-3">Project Description</h2>
+    <p class="text-ivory-white">
+      Eternal Memories is a web app to create digital memorials, preserve stories, and connect communities. It’s currently in Public Beta.
+      Users can create memorials, generate respectful AI tributes and symbolic images, write multi‑chapter tales, join communities, and react or message people.
+    </p>
+    <div class="grid md:grid-cols-2 gap-6 mt-4">
+      <div>
+        <h3 class="text-soft-gold font-medium mb-2">Key Features</h3>
+        <ul class="list-disc pl-6 text-ivory-white space-y-1">
+          <li>Memorials with messages and candles</li>
+          <li>AI tribute assistant (Groq) and AI imagery (AI Horde)</li>
+          <li>Tales (multi‑chapter stories) with publishing controls</li>
+          <li>Communities with channels and live-style polling feed</li>
+          <li>People search, reactions, and direct messages</li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="text-soft-gold font-medium mb-2">Tech Stack</h3>
+        <ul class="list-disc pl-6 text-ivory-white space-y-1">
+          <li>Django 4, SQLite/PostgreSQL (Render)</li>
+          <li>Tailwind CSS (CDN) + custom theme</li>
+          <li>WhiteNoise for static, Gunicorn on Render</li>
+          <li>Optional: dj-database-url, python-dotenv</li>
+        </ul>
+      </div>
+    </div>
+    <p class="text-faint-lavender mt-4 text-sm">
+      Beta notice: We may use content/usage to improve features (see <a class="celestial-link" href="{% url 'privacy' %}">Privacy Policy</a>). We do not sell personal data.
+      Questions? <a class="celestial-link" href="{% url 'contact' %}">Contact us</a>.
+    </p>
+  </section>
+
+  <section class="celestial-card p-6">
+    <h2 class="text-2xl font-playfair text-soft-gold mb-3">Our Story</h2>
+    <p class="text-ivory-white">
+      Every life is a story worth remembering. Yet, when someone we love leaves us, their memories often fade into photographs,
+      scattered words, or unspoken feelings. We created Eternal Memories to be more than just a platform — it’s a sanctuary where
+      stories live forever.
+    </p>
+  </section>
+
+  <section class="celestial-card p-6">
+    <h2 class="text-2xl font-playfair text-soft-gold mb-3">Our Mission</h2>
+    <p class="text-ivory-white">
+      We believe memories should never be lost. Our mission is to help families and friends preserve the essence of their loved ones —
+      their laughter, their words, their journeys — in a space that is eternal, heartfelt, and accessible to all generations.
+    </p>
+  </section>
+
+  <section class="celestial-card p-6">
+    <h2 class="text-2xl font-playfair text-soft-gold mb-3">What We Do</h2>
+    <ul class="space-y-2 text-ivory-white">
+      <li>🌿 <strong>Digital Memorials:</strong> Create timeless profiles where memories, stories, and photos come alive.</li>
+      <li>🎶 <strong>AI Storytelling:</strong> Transform words into narratives, poems, and even audiobooks.</li>
+      <li>🖼️ <strong>AI Imagery:</strong> Reimagine photographs and generate artistic visuals to keep the spirit alive.</li>
+      <li>🤝 <strong>Community & Support:</strong> A space where remembrance connects people, helping grief turn into strength.</li>
+    </ul>
+  </section>
+
+  <section class="celestial-card p-6">
+    <h2 class="text-2xl font-playfair text-soft-gold mb-3">Our Vision</h2>
+    <p class="text-ivory-white">
+      We envision a world where no memory fades away — where technology bridges the gap between loss and legacy, and where remembrance
+      is not just a ritual, but a way to keep love alive.
+    </p>
+  </section>
+
+  <section class="celestial-card p-6">
+    <h2 class="text-2xl font-playfair text-soft-gold mb-3">Why Choose Us?</h2>
+    <ul class="list-disc pl-6 text-ivory-white space-y-1">
+      <li>Unique blend of AI, art, and empathy.</li>
+      <li>A respectful, secure, and privacy-first platform.</li>
+      <li>Designed not just for today, but for the future generations.</li>
+    </ul>
+  </section>
+
+  <section class="celestial-card p-6">
+    <h2 class="text-2xl font-playfair text-soft-gold mb-3">Open Source</h2>
+    <p class="text-ivory-white">
+      Eternal Memories is in Public Beta and evolving. Explore the code, open issues, or contribute on
+      <a href="https://github.com/Aumpatro-22/Eterna" target="_blank" rel="noopener" class="celestial-link">GitHub</a>.
+    </p>
+  </section>
+
+  <div class="flex flex-wrap gap-3 justify-center">
+    <a href="{% url 'create_memorial' %}" class="px-5 py-2 celestial-button rounded">
+      <i class="fas fa-star mr-2"></i>Create a Memorial
+    </a>
+    <a href="{% url 'tales:list' %}" class="px-5 py-2 celestial-button rounded">
+      <i class="fas fa-feather mr-2"></i>Explore Tales
+    </a>
+    <a href="{% url 'communities:list' %}" class="px-5 py-2 celestial-button rounded">
+      <i class="fas fa-users mr-2"></i>Join Communities
+    </a>
+  </div>
+</div>
+{% endblock %}

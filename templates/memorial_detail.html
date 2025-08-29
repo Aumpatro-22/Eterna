@@ -1,0 +1,534 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Memorial for {{ memorial.name }} | Eternal Memories{% endblock %}
+
+{% block extra_css %}
+<style>
+    .candle {
+        position: relative;
+        width: 100px;
+        margin: 0 auto;
+        transition: transform 0.3s ease;
+    }
+    .candle:hover {
+        transform: scale(1.05);
+    }
+    .candle-flame {
+        position: absolute;
+        top: -15px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 20px;
+        height: 30px;
+        background: radial-gradient(ellipse at center, #ffcc00 0%, #ff9900 100%);
+        border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+        box-shadow: 0 0 20px rgba(255, 153, 0, 0.8);
+        animation: flicker 1s infinite alternate;
+    }
+    
+    .candle-flame-small {
+        position: absolute;
+        top: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 10px;
+        height: 15px;
+        background: radial-gradient(ellipse at center, #ffcc00 0%, #ff9900 100%);
+        border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+        box-shadow: 0 0 10px rgba(255, 153, 0, 0.6);
+        animation: flicker 1.5s infinite alternate;
+    }
+    
+    @keyframes flicker {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.8; transform: translateX(-50%) scaleY(0.9); }
+    }
+    
+    .star-memorial-header {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .star-memorial-header::before {
+        display: none; /* prevent global darkness bleeding over the image */
+    }
+    
+    .image-overlay {
+		position: absolute;
+		inset: 0;
+		background: linear-gradient(
+			to top,
+			rgba(10, 14, 26, 0.75) 0%,
+			rgba(10, 14, 26, 0.35) 35%,
+			transparent 65%
+		);
+		pointer-events: none;
+	}
+    
+    .rising-star {
+        position: absolute;
+        width: 3px;
+        height: 3px;
+        background: rgba(255, 255, 255, 0.8);
+        border-radius: 50%;
+        box-shadow: 0 0 5px 2px rgba(255, 255, 255, 0.4);
+    }
+    
+    .tribute-text {
+        position: relative;
+        background: rgba(18, 23, 56, 0.5); /* was 0.7 */
+        border-left: 3px solid rgba(212, 175, 55, 0.6);
+        padding: 1.25rem 1.25rem 1.25rem 1.25rem;
+        font-style: italic;
+    }
+    
+    .tribute-text::before {
+        content: '"';
+        position: absolute;
+        top: -20px;
+        left: 10px;
+        font-size: 60px;
+        color: var(--soft-gold);
+        opacity: 0.5;
+        font-family: 'Playfair Display', serif;
+    }
+    
+    /* Constellation of candles */
+    .candle-constellation {
+        position: absolute;
+        top: -80px; /* slightly less overlap */
+        left: 0;
+        right: 0;
+        height: 80px;
+        overflow: hidden;
+        pointer-events: none;
+        opacity: 0.6;
+    }
+    
+    /* Local brighter card variant only for this page */
+	.card-bright {
+		background: rgba(18, 23, 56, 0.55);
+		border: 1px solid rgba(212, 175, 55, 0.15);
+		box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+	}
+
+	.card-bright:hover {
+		box-shadow: 0 16px 40px rgba(0, 0, 0, 0.28);
+		transform: translateY(-3px);
+	}
+
+	/* Improve contrast for long text blocks */
+	.prose .text-ivory-white,
+	.prose div,
+	.prose p {
+		color: var(--ivory-white);
+	}
+
+    .header-content {
+		position: relative;
+		z-index: 2;
+	}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+	<!-- Memorial Header -->
+	<div class="celestial-card card-bright overflow-hidden mb-8 fade-in star-memorial-header">
+		{% if memorial.image %}
+			<div class="relative h-64 md:h-80 overflow-hidden">
+				{% if memorial.is_ai_generated_image %}
+					<div class="celestial-frame w-64 h-64 mx-auto mt-6 relative">
+						<img src="{{ memorial.image.url }}" alt="Memorial for {{ memorial.name }}" class="w-full h-full object-cover">
+					</div>
+				{% else %}
+					<img src="{{ memorial.image.url }}" alt="Memorial for {{ memorial.name }}" class="w-full h-full object-cover">
+				{% endif %}
+				<!-- New: bottom gradient overlay to avoid dark bleeding -->
+				<div class="image-overlay"></div>
+			</div>
+		{% else %}
+			<div class="h-64 md:h-80 flex items-center justify-center">
+				<i class="fas fa-star text-6xl text-soft-gold"></i>
+			</div>
+		{% endif %}
+
+		<div class="p-6 md:p-8 relative header-content">
+			<h1 class="text-3xl md:text-4xl font-bold mb-2 memorial-name">
+				{{ memorial.name }}
+			</h1>
+			
+			{% if memorial.date_of_birth or memorial.date_of_passing %}
+				<p class="text-lg text-faint-lavender mb-4">
+					{% if memorial.date_of_birth %}
+						{{ memorial.date_of_birth|date:"F j, Y" }}
+					{% endif %}
+					{% if memorial.date_of_birth and memorial.date_of_passing %}
+					 -
+					{% endif %}
+					{% if memorial.date_of_passing %}
+						{{ memorial.date_of_passing|date:"F j, Y" }}
+					{% endif %}
+				</p>
+			{% endif %}
+			
+			<!-- Creator info and edit buttons -->
+			<div class="flex justify-between items-center mb-6">
+				<p class="text-faint-lavender">
+					Created by {{ memorial.creator.get_full_name|default:memorial.creator.username }}
+				</p>
+				
+				{% if user == memorial.creator %}
+					<div class="space-x-2">
+						<a href="{% url 'update_memorial' memorial.pk %}" class="text-soft-gold hover:text-ivory-white">
+							<i class="fas fa-edit mr-1"></i> Edit
+						</a>
+						<a href="{% url 'delete_memorial' memorial.pk %}" class="text-rose-tint hover:text-ivory-white">
+							<i class="fas fa-trash-alt mr-1"></i> Delete
+						</a>
+					</div>
+				{% endif %}
+			</div>
+			
+			<!-- Biography -->
+			<div class="prose max-w-none">
+				<h2 class="text-2xl font-semibold mb-3">Biography</h2>
+				<div class="text-ivory-white whitespace-pre-line">{{ memorial.biography }}</div>
+			</div>
+			
+			{% if memorial.tribute %}
+				<div class="mt-8 prose max-w-none">
+					<h2 class="text-2xl font-semibold mb-3">Tribute</h2>
+					<div class="tribute-text text-faint-lavender whitespace-pre-line">
+						{{ memorial.tribute }}
+					</div>
+				</div>
+			{% endif %}
+		</div>
+	</div>
+	
+	<!-- Interaction Section -->
+	<div class="flex flex-col md:flex-row gap-6 mb-8">
+		<!-- Light a Candle Section -->
+		<div class="celestial-card card-bright p-6 flex-1 fade-in relative">
+			<div class="candle-constellation" id="candle-constellation"></div>
+			
+			<h2 class="text-2xl font-semibold text-center mb-6 memorial-name">Light a Candle</h2>
+			
+			<div class="candle mb-6">
+				<div class="candle-flame" id="candle-flame"></div>
+				<img src="{% static 'images/vecteezy_burnout-candle_1188848.png' %}" alt="Candle" class="w-full"
+					 onerror="this.onerror=null; this.parentNode.innerHTML='<div class=\'w-full h-24 bg-amber-100 flex items-center justify-center rounded-md\'><i class=\'fas fa-fire text-amber-600 text-4xl\'></i></div>';">
+			</div>
+			
+			<form method="post" action="{% url 'light_candle' memorial.pk %}" class="space-y-4" id="candle-form">
+				{% csrf_token %}
+				<div>
+					<label for="{{ candle_form.lit_by.id_for_label }}" class="block text-ivory-white mb-1">Your Name</label>
+					{{ candle_form.lit_by }}
+				</div>
+				<div>
+					<label for="{{ candle_form.message.id_for_label }}" class="block text-ivory-white mb-1">Message (Optional)</label>
+					{{ candle_form.message }}
+				</div>
+				<button type="submit" class="w-full py-2 celestial-button rounded">
+					<i class="fas fa-fire mr-1"></i> Light Candle
+				</button>
+			</form>
+		</div>
+		
+		<!-- Leave a Message Section -->
+		<div class="celestial-card card-bright p-6 flex-1 fade-in">
+			<h2 class="text-2xl font-semibold text-center mb-6 memorial-name">Leave a Message</h2>
+			
+			<form method="post" action="{% url 'add_message' memorial.pk %}" class="space-y-4" id="message-form">
+				{% csrf_token %}
+				<div>
+					<label for="{{ message_form.author_name.id_for_label }}" class="block text-ivory-white mb-1">Your Name</label>
+					{{ message_form.author_name }}
+				</div>
+				<div>
+					<label for="{{ message_form.author_email.id_for_label }}" class="block text-ivory-white mb-1">Your Email (Optional)</label>
+					{{ message_form.author_email }}
+				</div>
+				<div>
+					<label for="{{ message_form.content.id_for_label }}" class="block text-ivory-white mb-1">Your Message</label>
+					{{ message_form.content }}
+				</div>
+				<button type="submit" class="w-full py-2 celestial-button rounded">
+					<i class="fas fa-paper-plane mr-1"></i> Send Message
+				</button>
+			</form>
+		</div>
+	</div>
+	
+	<!-- Messages & Candles Sections -->
+	<div class="flex flex-col md:flex-row gap-6">
+		<!-- Messages Section -->
+		<div class="celestial-card card-bright p-6 flex-1 fade-in">
+			<h2 class="text-2xl font-semibold mb-6 memorial-name">Messages</h2>
+			
+			<div id="messages-container" class="space-y-4">
+				{% if messages %}
+					{% for msg in messages %}
+						<div class="border-b border-soft-gold border-opacity-20 pb-4">
+							<p class="text-ivory-white">{{ msg.content }}</p>
+							<div class="mt-2 text-sm text-faint-lavender flex justify-between">
+								<span>{{ msg.author_name }}</span>
+								<span>{{ msg.created_at|date:"M d, Y" }}</span>
+							</div>
+						</div>
+					{% endfor %}
+				{% else %}
+					<p class="text-center text-faint-lavender">No messages yet. Be the first to leave a message.</p>
+				{% endif %}
+			</div>
+		</div>
+		
+		<!-- Candles Section -->
+		<div class="celestial-card card-bright p-6 flex-1 fade-in">
+			<h2 class="text-2xl font-semibold mb-6 memorial-name">Candles Lit</h2>
+			
+			<div id="candles-container" class="grid grid-cols-2 md:grid-cols-3 gap-4">
+				{% if candles %}
+					{% for candle in candles %}
+						<div class="text-center">
+							<div class="candle-small mb-2">
+								<div class="candle-flame-small"></div>
+								<img src="{% static 'images/vecteezy_burnout-candle_1188848.png' %}" alt="Candle" class="w-16 h-16 mx-auto"
+									 onerror="this.onerror=null; this.outerHTML='<div class=\'w-16 h-16 bg-amber-100 flex items-center justify-center rounded-full mx-auto\'><i class=\'fas fa-fire text-amber-600\'></i></div>';">
+							</div>
+							<p class="text-sm font-medium text-soft-gold">{{ candle.lit_by }}</p>
+							<p class="text-xs text-faint-lavender">{{ candle.lit_at|date:"M d, Y" }}</p>
+							{% if candle.message %}
+								<p class="text-xs text-ivory-white mt-1">"{{ candle.message|truncatechars:30 }}"</p>
+							{% endif %}
+						</div>
+					{% endfor %}
+				{% else %}
+					<p class="text-center text-faint-lavender col-span-3">No candles lit yet. Be the first to light a candle.</p>
+				{% endif %}
+			</div>
+		</div>
+	</div>
+
+	<div class="celestial-card card-bright p-4 mb-6 flex items-center justify-between">
+		<div class="text-faint-lavender text-sm">
+			<span class="mr-2">Memorial ID:</span>
+			<code id="memorial-id" class="text-soft-gold">{{ memorial.public_id }}</code>
+		</div>
+		<div class="flex items-center gap-2">
+			<button id="copy-id" class="px-3 py-1 text-xs celestial-button rounded">Copy ID</button>
+			<a href="{% url 'communities:create' %}?name={{ memorial.name|urlencode }} Community&desc=Community%20to%20share%20memories%20of%20{{ memorial.name|urlencode }}" class="px-3 py-1 text-xs celestial-button rounded">
+				Create Community
+			</a>
+			<a href="{{ request.build_absolute_uri }} " class="ml-1 text-xs text-soft-gold underline">Share</a>
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Create the candle constellation
+        createCandleConstellation();
+        
+        // Handle message form submission via AJAX
+        const messageForm = document.getElementById('message-form');
+        messageForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(messageForm);
+            fetch(messageForm.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Add the new message to the messages container
+                    const messagesContainer = document.getElementById('messages-container');
+                    const messageElement = document.createElement('div');
+                    messageElement.className = 'border-b border-soft-gold border-opacity-20 pb-4 fade-in';
+                    messageElement.innerHTML = `
+                        <p class="text-ivory-white">${data.content}</p>
+                        <div class="mt-2 text-sm text-faint-lavender flex justify-between">
+                            <span>${data.author_name}</span>
+                            <span>${data.created_at}</span>
+                        </div>
+                    `;
+                    
+                    // Replace "no messages" text if it exists
+                    const noMessagesText = messagesContainer.querySelector('p.text-center');
+                    if (noMessagesText) {
+                        messagesContainer.innerHTML = '';
+                    }
+                    
+                    // Add to the beginning of the list
+                    messagesContainer.insertBefore(messageElement, messagesContainer.firstChild);
+                    
+                    // Reset the form
+                    messageForm.reset();
+                }
+            });
+        });
+        
+        // Handle candle form submission via AJAX
+        const candleForm = document.getElementById('candle-form');
+        candleForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(candleForm);
+            fetch(candleForm.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Add the new candle to the candles container
+                    const candlesContainer = document.getElementById('candles-container');
+                    const candleElement = document.createElement('div');
+                    candleElement.className = 'text-center fade-in';
+                    candleElement.innerHTML = `
+                        <div class="candle-small mb-2">
+                            <div class="candle-flame-small"></div>
+                            <img src="{% static 'images/vecteezy_burnout-candle_1188848.png' %}" alt="Candle" class="w-16 h-16 mx-auto"
+                                 onerror="this.onerror=null; this.outerHTML='<div class=\\'w-16 h-16 bg-amber-100 flex items-center justify-center rounded-full mx-auto\\'><i class=\\'fas fa-fire text-amber-600\\'></i></div>';">
+                        </div>
+                        <p class="text-sm font-medium text-soft-gold">${data.lit_by}</p>
+                        <p class="text-xs text-faint-lavender">${data.lit_at}</p>
+                        ${data.message ? `<p class="text-xs text-ivory-white mt-1">"${data.message.length > 30 ? data.message.substring(0, 30) + '...' : data.message}"</p>` : ''}
+                    `;
+                    
+                    // Replace "no candles" text if it exists
+                    const noCandlesText = candlesContainer.querySelector('p.text-center');
+                    if (noCandlesText) {
+                        candlesContainer.innerHTML = '';
+                    }
+                    
+                    // Add to the beginning of the grid
+                    candlesContainer.insertBefore(candleElement, candlesContainer.firstChild);
+                    
+                    // Reset the form
+                    candleForm.reset();
+                    
+                    // Create rising star effect
+                    createRisingStar();
+                    
+                    // Enhanced flame animation
+                    const flame = document.getElementById('candle-flame');
+                    flame.style.animation = 'none';
+                    setTimeout(() => {
+                        flame.style.animation = 'flicker 1s infinite alternate';
+                        flame.style.boxShadow = '0 0 30px 10px rgba(255, 153, 0, 0.9)';
+                        setTimeout(() => {
+                            flame.style.boxShadow = '0 0 20px rgba(255, 153, 0, 0.8)';
+                        }, 1000);
+                    }, 10);
+                    
+                    // Play soft chime if available
+                    const chime = document.getElementById('chime-sound');
+                    if (chime) {
+                        chime.play().catch(e => console.log('Audio playback prevented by browser'));
+                    }
+                }
+            });
+        });
+        
+        // Create rising star effect for candle lighting
+        function createRisingStar() {
+            const candleConstellation = document.getElementById('candle-constellation');
+            if (!candleConstellation) return;
+            
+            const star = document.createElement('div');
+            star.className = 'rising-star';
+            
+            // Random horizontal position
+            const x = 20 + Math.random() * 60; // 20% to 80% width
+            star.style.left = `${x}%`;
+            
+            // Start at the bottom
+            star.style.bottom = '0';
+            
+            // Add to constellation
+            candleConstellation.appendChild(star);
+            
+            // Animate rising
+            const duration = 3000 + Math.random() * 2000; // 3-5 seconds
+            
+            let startTime = null;
+            const height = candleConstellation.offsetHeight;
+            
+            function animate(timestamp) {
+                if (!startTime) startTime = timestamp;
+                const elapsed = timestamp - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // Move upward
+                star.style.bottom = `${progress * 100}%`;
+                
+                // Fade in and out
+                star.style.opacity = progress < 0.2 ? progress * 5 : 
+                                    progress > 0.8 ? (1 - progress) * 5 : 1;
+                
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    candleConstellation.removeChild(star);
+                }
+            }
+            
+            requestAnimationFrame(animate);
+        }
+        
+        // Initialize candle constellation
+        function createCandleConstellation() {
+            const candleConstellation = document.getElementById('candle-constellation');
+            if (!candleConstellation) return;
+            
+            // Create initial stars based on number of candles
+            const candleCount = {{ memorial.candles.count }};
+            for (let i = 0; i < Math.min(candleCount, 10); i++) {
+                createConstellationStar(candleConstellation);
+            }
+        }
+        
+        function createConstellationStar(container) {
+            const star = document.createElement('div');
+            star.className = 'rising-star';
+            
+            // Random position
+            const x = Math.random() * 100;
+            const y = Math.random() * 100;
+            
+            star.style.left = `${x}%`;
+            star.style.bottom = `${y}%`;
+            
+            // Random size
+            const size = Math.random() * 2 + 1;
+            star.style.width = `${size}px`;
+            star.style.height = `${size}px`;
+            
+            // Add to constellation
+            container.appendChild(star);
+        }
+        
+        const btn = document.getElementById('copy-id');
+		if (btn) {
+			btn.addEventListener('click', async () => {
+				const id = document.getElementById('memorial-id').textContent.trim();
+				try { await navigator.clipboard.writeText(id); btn.textContent = 'Copied'; setTimeout(()=>btn.textContent='Copy ID',1000);} catch(e){}
+			});
+		}
+    });
+</script>
+{% endblock %}

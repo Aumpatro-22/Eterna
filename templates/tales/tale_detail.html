@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block title %}{{ tale.title }} | Tales{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 fade-in">
+  <!-- Sidebar: Chapters -->
+  <aside class="md:col-span-1 celestial-card p-4">
+    <div class="flex items-center justify-between mb-2">
+      <h2 class="text-xl font-playfair text-soft-gold">{{ tale.title }}</h2>
+      {% if user.is_authenticated and user == tale.author %}
+        <a href="{% url 'tales:chapter_create' slug=tale.slug %}" class="text-xs px-2 py-1 celestial-button rounded">Add Chapter</a>
+      {% endif %}
+    </div>
+    {% if tale.subtitle %}<p class="text-faint-lavender mb-3">{{ tale.subtitle }}</p>{% endif %}
+    <div class="text-xs text-faint-lavender mb-2"><i class="fas fa-book-open mr-1 text-soft-gold"></i>Chapters</div>
+    <ul class="space-y-1">
+      {% for ch in chapters %}
+        <li>
+          <a href="?c={{ ch.order }}" class="block px-3 py-2 rounded hover:bg-white hover:bg-opacity-5 {% if chapter and ch.order == chapter.order %}bg-white bg-opacity-5{% endif %}">
+            {{ ch.order }}. {{ ch.title }}
+            {% if user.is_authenticated and user == tale.author and not ch.published %}
+              <span class="ml-2 text-rose-300 text-[10px] px-1 py-0.5 border border-rose-300 border-opacity-40 rounded">Draft</span>
+            {% endif %}
+          </a>
+        </li>
+      {% empty %}
+        <li class="text-faint-lavender text-sm px-3 py-2">
+          No chapters yet.
+          {% if user.is_authenticated and user == tale.author %}
+            <a class="celestial-link ml-1" href="{% url 'tales:chapter_create' slug=tale.slug %}">Add your first chapter</a>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  </aside>
+
+  <!-- Reader -->
+  <section class="md:col-span-3 celestial-card p-5">
+    {% if chapter %}
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg text-soft-gold">
+          {{ chapter.order }}. {{ chapter.title }}
+          {% if user.is_authenticated and user == tale.author and not chapter.published %}
+            <span class="ml-2 text-rose-300 text-xs border border-rose-300 border-opacity-40 rounded px-2 py-0.5">Draft (only you can see this)</span>
+          {% endif %}
+        </h3>
+        <div class="space-x-2 text-sm">
+          {% if prev_order %}<a href="?c={{ prev_order }}" class="celestial-link">Previous</a>{% endif %}
+          {% if next_order %}<a href="?c={{ next_order }}" class="celestial-link">Next</a>{% endif %}
+          {% if user.is_authenticated and user == tale.author and not chapter.published %}
+            <form method="post" action="{% url 'tales:chapter_publish' slug=tale.slug chapter_id=chapter.id %}" class="inline">
+              {% csrf_token %}
+              <button type="submit" class="px-2 py-1 text-xs celestial-button rounded">Publish</button>
+            </form>
+          {% endif %}
+        </div>
+      </div>
+      <article class="prose max-w-none text-ivory-white whitespace-pre-line">
+        {{ chapter.content }}
+      </article>
+    {% else %}
+      <p class="text-faint-lavender">No chapters available.</p>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

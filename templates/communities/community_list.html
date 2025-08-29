@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}Communities | Eternal Memories{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-3xl font-playfair text-soft-gold">Communities</h1>
+    {% if user.is_authenticated %}
+      <a href="{% url 'communities:create' %}" class="px-4 py-2 celestial-button rounded">
+        <i class="fas fa-plus mr-2"></i>Create Community
+      </a>
+    {% endif %}
+  </div>
+
+  <form method="get" class="flex mb-6">
+    <input type="text" name="q" value="{{ request.GET.q }}" placeholder="Search communities..."
+           class="px-4 py-2 rounded-l bg-midnight-blue text-ivory-white focus:outline-none">
+    <button class="px-4 py-2 rounded-r celestial-button">Search</button>
+  </form>
+
+  {% if communities %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {% for c in communities %}
+        <a href="{% url 'communities:detail' slug=c.slug %}" class="block">
+          <div class="celestial-card p-5 h-full">
+            <h3 class="text-xl font-playfair text-soft-gold">{{ c.name }}</h3>
+            <p class="text-faint-lavender mt-2 line-clamp-3">{{ c.description|default:"No description" }}</p>
+            <div class="mt-3 text-xs text-faint-lavender">
+              {% if c.is_public %}<i class="fas fa-globe mr-1 text-soft-gold"></i> Public{% else %}<i class="fas fa-lock mr-1"></i> Private{% endif %}
+              <span class="mx-2">•</span>
+              <i class="fas fa-users mr-1 text-soft-gold"></i>{{ c.memberships.count }} members
+            </div>
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="celestial-card p-10 text-center">
+      <p class="text-faint-lavender">No communities found.</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

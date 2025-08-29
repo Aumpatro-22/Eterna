@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Delete Memorial | Eternal Memories{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto fade-in">
+    <div class="celestial-card p-6">
+        <div class="text-center mb-6">
+            <div class="inline-block p-4 rounded-full bg-red-500 bg-opacity-20 mb-4">
+                <i class="fas fa-exclamation-triangle text-5xl text-red-400"></i>
+            </div>
+            <h1 class="text-3xl font-bold memorial-name">Delete Memorial</h1>
+        </div>
+        
+        <div class="p-4 mb-6 bg-red-900 bg-opacity-20 border border-red-500 border-opacity-30 rounded-md">
+            <p class="text-lg text-center text-red-300">
+                Are you sure you want to delete the memorial for <strong class="text-soft-gold">{{ memorial.name }}</strong>?
+            </p>
+            <p class="text-center text-red-300 mt-2">
+                This action cannot be undone. All messages, candles, and other associated data will be permanently removed.
+            </p>
+        </div>
+        
+        <div class="border-t border-b border-soft-gold border-opacity-20 py-4 my-4">
+            <div class="flex items-center">
+                {% if memorial.image %}
+                    <div class="w-24 h-24 overflow-hidden rounded-md mr-4 celestial-frame">
+                        <img src="{{ memorial.image.url }}" alt="Memorial for {{ memorial.name }}" class="w-full h-full object-cover">
+                    </div>
+                {% else %}
+                    <div class="w-24 h-24 rounded-md flex items-center justify-center mr-4 celestial-card">
+                        <i class="fas fa-star text-3xl text-soft-gold"></i>
+                    </div>
+                {% endif %}
+                
+                <div>
+                    <h2 class="text-xl font-semibold memorial-name">{{ memorial.name }}</h2>
+                    {% if memorial.date_of_birth and memorial.date_of_passing %}
+                        <p class="text-faint-lavender">
+                            {{ memorial.date_of_birth|date:"F j, Y" }} - {{ memorial.date_of_passing|date:"F j, Y" }}
+                        </p>
+                    {% endif %}
+                    <p class="text-sm text-faint-lavender mt-1">
+                        <i class="fas fa-candle-holder mr-1 text-soft-gold"></i> {{ memorial.candles.count }} candles lit
+                        <span class="mx-1">•</span>
+                        <i class="fas fa-comment mr-1 text-soft-gold"></i> {{ memorial.messages.count }} messages
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="flex justify-end space-x-3 mt-6">
+            <a href="{% url 'memorial_detail' memorial.pk %}" class="px-6 py-2 celestial-button rounded">
+                Cancel
+            </a>
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="px-6 py-2 bg-red-700 text-white rounded hover:bg-red-600 transition-all duration-300 border border-red-500">
+                    Delete Permanently
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,240 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Create a Memorial | Eternal Memories{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-header {
+        position: relative;
+        padding-bottom: 0.75rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-header::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 60px;
+        height: 2px;
+        background: linear-gradient(90deg, var(--soft-gold), transparent);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto fade-in">
+    <h1 class="text-3xl font-bold memorial-name mb-2">Create a Memorial</h1>
+    <p class="text-faint-lavender mb-6">Honor and preserve the memory of your loved one</p>
+    
+    <div class="celestial-card p-6">
+        <form method="post" enctype="multipart/form-data" class="space-y-6">
+            {% csrf_token %}
+            
+            <!-- Name and Dates -->
+            <div class="form-header">
+                <h2 class="text-xl font-semibold memorial-name">Personal Information</h2>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="form-group">
+                    <label for="{{ form.name.id_for_label }}" class="block text-ivory-white font-medium mb-2">
+                        <i class="fas fa-user text-soft-gold mr-2 opacity-70"></i>Full Name
+                    </label>
+                    {{ form.name }}
+                    {% if form.name.errors %}
+                        <p class="text-red-400 text-sm mt-1">{{ form.name.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="form-group">
+                        <label for="{{ form.date_of_birth.id_for_label }}" class="block text-ivory-white font-medium mb-2">
+                            <i class="fas fa-birthday-cake text-soft-gold mr-2 opacity-70"></i>Date of Birth
+                        </label>
+                        {{ form.date_of_birth }}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.date_of_passing.id_for_label }}" class="block text-ivory-white font-medium mb-2">
+                            <i class="fas fa-star text-soft-gold mr-2 opacity-70"></i>Date of Passing
+                        </label>
+                        {{ form.date_of_passing }}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Biography -->
+            <div class="form-group">
+                <label for="{{ form.biography.id_for_label }}" class="block text-ivory-white font-medium mb-2">
+                    <i class="fas fa-book-open text-soft-gold mr-2 opacity-70"></i>Biography
+                </label>
+                {{ form.biography }}
+                {% if form.biography.errors %}
+                    <p class="text-red-400 text-sm mt-1">{{ form.biography.errors.0 }}</p>
+                {% endif %}
+                <p class="text-faint-lavender text-sm mt-1">Share their story, who they were, what they loved, and how they lived.</p>
+            </div>
+            
+            <!-- Image Upload or AI Generation -->
+            <div class="border-t border-soft-gold border-opacity-20 pt-6">
+                <div class="form-header">
+                    <h2 class="text-xl font-semibold memorial-name">Memorial Photo</h2>
+                </div>
+                
+                <div class="mb-4 flex items-center">
+                    {{ form.use_ai_image }}
+                    <label for="{{ form.use_ai_image.id_for_label }}" class="ml-2 text-ivory-white">
+                        <i class="fas fa-magic text-soft-gold mr-2 opacity-70"></i>
+                        {{ form.use_ai_image.label }}
+                    </label>
+                </div>
+                
+                <!-- Standard Image Upload -->
+                <div id="standard-image-upload" class="mb-4">
+                    <label for="{{ form.image.id_for_label }}" class="block text-ivory-white font-medium mb-2">
+                        <i class="fas fa-image text-soft-gold mr-2 opacity-70"></i>Upload an Image
+                    </label>
+                    {{ form.image }}
+                </div>
+                
+                <!-- AI Image Generation -->
+                <div id="ai-image-generation" class="hidden">
+                    <label for="{{ form.image_prompt.id_for_label }}" class="block text-ivory-white font-medium mb-2">
+                        <i class="fas fa-paint-brush text-soft-gold mr-2 opacity-70"></i>Image Description
+                    </label>
+                    {{ form.image_prompt }}
+                    <p class="text-faint-lavender text-sm mt-1">{{ form.image_prompt.help_text }}</p>
+                </div>
+            </div>
+            
+            <!-- AI Tribute Generation -->
+            <div class="border-t border-soft-gold border-opacity-20 pt-6">
+                <div class="form-header">
+                    <h2 class="text-xl font-semibold memorial-name">Tribute</h2>
+                </div>
+                
+                <div class="mb-4 flex items-center">
+                    {{ form.generate_tribute }}
+                    <label for="{{ form.generate_tribute.id_for_label }}" class="ml-2 text-ivory-white">
+                        <i class="fas fa-feather-alt text-soft-gold mr-2 opacity-70"></i>
+                        {{ form.generate_tribute.label }}
+                    </label>
+                </div>
+                
+                <!-- AI Tribute Generation Fields -->
+                <div id="ai-tribute-fields" class="space-y-4 hidden">
+                    <div class="form-group">
+                        <label for="{{ form.relationship.id_for_label }}" class="block text-ivory-white font-medium mb-2">
+                            <i class="fas fa-heart text-soft-gold mr-2 opacity-70"></i>Your Relationship
+                        </label>
+                        {{ form.relationship }}
+                        <p class="text-faint-lavender text-sm mt-1">{{ form.relationship.help_text }}</p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.memories.id_for_label }}" class="block text-ivory-white font-medium mb-2">
+                            <i class="fas fa-memory text-soft-gold mr-2 opacity-70"></i>Special Memories
+                        </label>
+                        {{ form.memories }}
+                        <p class="text-faint-lavender text-sm mt-1">{{ form.memories.help_text }}</p>
+                    </div>
+                </div>
+                
+                <!-- Manual Tribute Entry -->
+                <div id="manual-tribute-entry">
+                    <label for="{{ form.tribute.id_for_label }}" class="block text-ivory-white font-medium mb-2">
+                        <i class="fas fa-pen-fancy text-soft-gold mr-2 opacity-70"></i>Tribute Text
+                    </label>
+                    {{ form.tribute }}
+                    <p class="text-faint-lavender text-sm mt-1">Share a personal tribute or message in honor of your loved one.</p>
+                </div>
+            </div>
+            
+            <div class="flex justify-end border-t border-soft-gold border-opacity-20 pt-6">
+                <button type="submit" class="px-6 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-500 transition-all duration-300 border border-indigo-400">
+                    <i class="fas fa-star mr-2"></i> Create Memorial
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const useAiImage = document.getElementById('{{ form.use_ai_image.id_for_label }}');
+        const standardImageUpload = document.getElementById('standard-image-upload');
+        const aiImageGeneration = document.getElementById('ai-image-generation');
+        
+        const generateTribute = document.getElementById('{{ form.generate_tribute.id_for_label }}');
+        const aiTributeFields = document.getElementById('ai-tribute-fields');
+        const manualTributeEntry = document.getElementById('manual-tribute-entry');
+        
+        // Handle image option toggle with animation
+        useAiImage.addEventListener('change', function() {
+            if (this.checked) {
+                standardImageUpload.style.opacity = '0';
+                setTimeout(() => {
+                    standardImageUpload.classList.add('hidden');
+                    aiImageGeneration.classList.remove('hidden');
+                    setTimeout(() => {
+                        aiImageGeneration.style.opacity = '1';
+                    }, 50);
+                }, 300);
+            } else {
+                aiImageGeneration.style.opacity = '0';
+                setTimeout(() => {
+                    aiImageGeneration.classList.add('hidden');
+                    standardImageUpload.classList.remove('hidden');
+                    setTimeout(() => {
+                        standardImageUpload.style.opacity = '1';
+                    }, 50);
+                }, 300);
+            }
+        });
+        
+        // Initialize visibility
+        if (useAiImage.checked) {
+            standardImageUpload.classList.add('hidden');
+            aiImageGeneration.classList.remove('hidden');
+        }
+        
+        // Handle tribute option toggle with animation
+        generateTribute.addEventListener('change', function() {
+            if (this.checked) {
+                manualTributeEntry.style.opacity = '0';
+                setTimeout(() => {
+                    manualTributeEntry.classList.add('hidden');
+                    aiTributeFields.classList.remove('hidden');
+                    setTimeout(() => {
+                        aiTributeFields.style.opacity = '1';
+                    }, 50);
+                }, 300);
+            } else {
+                aiTributeFields.style.opacity = '0';
+                setTimeout(() => {
+                    aiTributeFields.classList.add('hidden');
+                    manualTributeEntry.classList.remove('hidden');
+                    setTimeout(() => {
+                        manualTributeEntry.style.opacity = '1';
+                    }, 50);
+                }, 300);
+            }
+        });
+        
+        // Initialize tribute fields visibility
+        if (generateTribute.checked) {
+            manualTributeEntry.classList.add('hidden');
+            aiTributeFields.classList.remove('hidden');
+        }
+        
+        // Add transition styles
+        const transitionElements = [standardImageUpload, aiImageGeneration, manualTributeEntry, aiTributeFields];
+        transitionElements.forEach(el => {
+            if (el) el.style.transition = 'opacity 0.3s ease';
+        });
+    });
+</script>
+{% endblock %}

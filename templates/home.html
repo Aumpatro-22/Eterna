@@ -1,0 +1,301 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Eternal Memories - Home{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero-section {
+        min-height: 60vh;
+        background-image: radial-gradient(circle at 50% 50%, rgba(18, 23, 56, 0.7), var(--deep-space));
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .poetic-tagline {
+        font-family: 'Playfair Display', serif;
+        font-weight: 500;
+        letter-spacing: 0.05em;
+        background: linear-gradient(45deg, var(--soft-gold), var(--ivory-white));
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    
+    .floating {
+        animation: float 6s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-20px); }
+    }
+    
+    .star-pulse {
+        animation: starPulse 4s ease-in-out infinite;
+    }
+    
+    @keyframes starPulse {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.1); opacity: 0.8; }
+    }
+    
+    .memorial-card {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transform: translateY(0);
+    }
+    
+    .memorial-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+    }
+    
+    .constellation-container {
+        min-height: 70vh;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section mb-16 rounded-3xl flex items-center justify-center">
+    <div class="text-center px-4 py-16 relative z-10">
+        <h1 class="poetic-tagline text-4xl md:text-6xl mb-6">Every life is a star in eternity</h1>
+        <p class="text-faint-lavender text-xl md:text-2xl max-w-2xl mx-auto mb-10">Honor and preserve the memories of your loved ones in a celestial memorial that shines forever.</p>
+        
+        <div class="flex flex-wrap justify-center gap-4">
+            <a href="{% url 'create_memorial' %}" class="relative px-8 py-3 overflow-hidden group bg-gradient-to-r from-soft-gold to-amber-600 text-white rounded-lg text-lg font-medium">
+                <span class="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-soft-gold to-amber-500 opacity-50 transform scale-x-0 scale-y-0 group-hover:scale-x-100 group-hover:scale-y-100 transition-transform duration-500 origin-center"></span>
+                <span class="relative flex items-center">
+                    <i class="fas fa-star mr-2"></i> Create Memorial
+                </span>
+            </a>
+            <a href="#memorials" class="px-8 py-3 bg-midnight-blue bg-opacity-50 hover:bg-opacity-70 text-ivory-white rounded-lg text-lg font-medium border border-soft-gold border-opacity-30 transition-all">
+                <i class="fas fa-search mr-2"></i> View Memorials
+            </a>
+            <a href="https://github.com/Aumpatro-22/Eterna" target="_blank" rel="noopener"
+               class="px-8 py-3 bg-midnight-blue bg-opacity-50 hover:bg-opacity-70 text-ivory-white rounded-lg text-lg font-medium border border-soft-gold border-opacity-30 transition-all">
+               <i class="fab fa-github mr-2"></i> GitHub
+            </a> <!-- NEW -->
+        </div>
+    </div>
+    
+    <!-- Animated stars - Fixed the multiply filter issue -->
+    <div class="absolute inset-0 pointer-events-none">
+        <div class="absolute star-pulse" style="top: 10%; left: 10%; width: 3px; height: 3px; background-color: rgba(255, 255, 255, 0.8); border-radius: 50%; box-shadow: 0 0 6px rgba(255, 255, 255, 0.8); animation-delay: 0.5s;"></div>
+        <div class="absolute star-pulse" style="top: 20%; left: 20%; width: 4px; height: 4px; background-color: rgba(255, 255, 255, 0.8); border-radius: 50%; box-shadow: 0 0 7px rgba(255, 255, 255, 0.8); animation-delay: 1s;"></div>
+        <div class="absolute star-pulse" style="top: 30%; left: 30%; width: 5px; height: 5px; background-color: rgba(255, 255, 255, 0.8); border-radius: 50%; box-shadow: 0 0 8px rgba(255, 255, 255, 0.8); animation-delay: 1.5s;"></div>
+        <div class="absolute star-pulse" style="top: 40%; left: 40%; width: 6px; height: 6px; background-color: rgba(255, 255, 255, 0.8); border-radius: 50%; box-shadow: 0 0 9px rgba(255, 255, 255, 0.8); animation-delay: 2s;"></div>
+        <div class="absolute star-pulse" style="top: 50%; left: 50%; width: 7px; height: 7px; background-color: rgba(255, 255, 255, 0.8); border-radius: 50%; box-shadow: 0 0 10px rgba(255, 255, 255, 0.8); animation-delay: 2.5s;"></div>
+        <div class="absolute star-pulse" style="top: 60%; left: 60%; width: 8px; height: 8px; background-color: rgba(255, 255, 255, 0.8); border-radius: 50%; box-shadow: 0 0 11px rgba(255, 255, 255, 0.8); animation-delay: 3s;"></div>
+        <div class="absolute star-pulse" style="top: 70%; left: 70%; width: 9px; height: 9px; background-color: rgba(255, 255, 255, 0.8); border-radius: 50%; box-shadow: 0 0 12px rgba(255, 255, 255, 0.8); animation-delay: 3.5s;"></div>
+        <div class="absolute star-pulse" style="top: 80%; left: 80%; width: 10px; height: 10px; background-color: rgba(255, 255, 255, 0.8); border-radius: 50%; box-shadow: 0 0 13px rgba(255, 255, 255, 0.8); animation-delay: 4s;"></div>
+        <div class="absolute star-pulse" style="top: 90%; left: 90%; width: 11px; height: 11px; background-color: rgba(255, 255, 255, 0.8); border-radius: 50%; box-shadow: 0 0 14px rgba(255, 255, 255, 0.8); animation-delay: 4.5s;"></div>
+    </div>
+</section>
+
+<!-- Search and View Controls -->
+<div id="memorials" class="mb-10 space-y-6">
+    <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+        <h2 class="text-3xl font-playfair text-soft-gold">Memorials</h2>
+        
+        <div class="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+            <form method="get" action="{% url 'home' %}" class="flex flex-1">
+                <div class="relative flex-1">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-search text-faint-lavender"></i>
+                    </div>
+                    <input type="text" name="search" placeholder="Search by name or ID..." 
+                           value="{{ request.GET.search|default_if_none:'' }}"
+                           class="pl-10 pr-4 py-2 w-full rounded-l-lg focus:ring-2 focus:ring-soft-gold focus:border-transparent">
+                </div>
+                <button type="submit" class="bg-soft-gold hover:bg-amber-600 text-deep-space font-medium px-4 py-2 rounded-r-lg transition-colors">
+                    Search
+                </button>
+            </form>
+            
+            <button id="view-toggle" onclick="toggleView()" aria-pressed="false"
+                    class="flex items-center justify-center bg-midnight-blue hover:bg-opacity-70 text-ivory-white px-4 py-2 rounded-lg border border-soft-gold border-opacity-30 transition-all">
+                <i class="fas fa-th-large mr-2"></i> 
+                <span>Constellation View</span>
+            </button>
+        </div>
+    </div>
+    
+    {% if not memorials %}
+        <div class="bg-deep-space bg-opacity-50 border border-soft-gold border-opacity-20 rounded-xl p-16 text-center">
+            <div class="inline-block mb-6">
+                <div class="w-20 h-20 mx-auto relative floating">
+                    <div class="absolute inset-0 bg-soft-gold bg-opacity-20 rounded-full animate-ping"></div>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <i class="fas fa-star text-4xl text-soft-gold"></i>
+                    </div>
+                </div>
+            </div>
+            <h3 class="text-2xl font-playfair text-soft-gold mb-4">No memorials found</h3>
+            <p class="text-ivory-white text-lg max-w-md mx-auto mb-8">Begin your journey of remembrance by creating the first memorial.</p>
+            
+            {% if user.is_authenticated %}
+                <a href="{% url 'create_memorial' %}" class="inline-block px-6 py-3 bg-gradient-to-r from-soft-gold to-amber-600 text-white rounded-lg transition-all hover:shadow-lg">
+                    <i class="fas fa-plus mr-2"></i> Create Memorial
+                </a>
+            {% else %}
+                <div class="space-y-3">
+                    <a href="{% url 'login' %}" class="inline-block px-6 py-3 bg-midnight-blue text-ivory-white rounded-lg border border-soft-gold border-opacity-30 hover:bg-opacity-70 transition-all">
+                        <i class="fas fa-sign-in-alt mr-2"></i> Sign In
+                    </a>
+                    <p class="text-faint-lavender text-sm">Sign in to create a memorial</p>
+                </div>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+
+<!-- Store memorial data for constellation view -->
+{% if memorials %}
+    {% for memorial in memorials %}
+        <div class="memorial-data hidden" 
+             data-id="{{ memorial.pk }}"
+             data-name="{{ memorial.name }}"
+             data-url="{% url 'memorial_detail' memorial.pk %}"
+             data-year="{% if memorial.date_of_birth and memorial.date_of_passing %}{{ memorial.date_of_birth|date:'Y' }} - {{ memorial.date_of_passing|date:'Y' }}{% endif %}">
+        </div>
+    {% endfor %}
+{% endif %}
+
+<!-- Constellation View -->
+<div id="constellation-view" class="constellation-container bg-deep-space bg-opacity-50 rounded-xl border border-soft-gold border-opacity-20 backdrop-filter backdrop-blur-sm hidden fade-in mb-10">
+    <!-- Stars will be placed dynamically via JavaScript -->
+    <div class="h-full flex items-center justify-center p-6">
+        <div class="text-center text-faint-lavender">
+            <div class="loading-stars mb-4">
+                <i class="fas fa-star text-soft-gold text-2xl mr-2 animate-pulse"></i>
+                <i class="fas fa-star text-soft-gold text-lg mr-2" style="animation: pulse 1.5s infinite; animation-delay: 0.2s;"></i>
+                <i class="fas fa-star text-soft-gold text-sm" style="animation: pulse 1.5s infinite; animation-delay: 0.4s;"></i>
+            </div>
+            <p>Creating constellation view...</p>
+        </div>
+    </div>
+</div>
+
+<!-- Standard Grid View -->
+<div id="standard-view" class="fade-in mb-10">
+    {% if memorials %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for memorial in memorials %}
+                <a href="{% url 'memorial_detail' memorial.pk %}" class="block group">
+                    <div class="memorial-card bg-deep-space bg-opacity-50 overflow-hidden rounded-xl border border-soft-gold border-opacity-20 backdrop-filter backdrop-blur-sm">
+                        <!-- Image Section -->
+                        <div class="h-48 sm:h-56 overflow-hidden relative">
+                            {% if memorial.image %}
+                                {% if memorial.is_ai_generated_image %}
+                                    <div class="celestial-frame w-36 h-36 mx-auto mt-6 transition-transform duration-500 group-hover:scale-105">
+                                        <img src="{{ memorial.image.url }}" alt="Memorial for {{ memorial.name }}" 
+                                             class="w-full h-full object-cover">
+                                    </div>
+                                    <div class="absolute bottom-2 right-2 bg-deep-space bg-opacity-70 rounded-full p-1">
+                                        <i class="fas fa-magic text-xs text-soft-gold"></i>
+                                    </div>
+                                {% else %}
+                                    <img src="{{ memorial.image.url }}" alt="Memorial for {{ memorial.name }}" 
+                                         class="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105">
+                                {% endif %}
+                            {% else %}
+                                <div class="h-full flex items-center justify-center bg-gradient-to-b from-midnight-blue to-deep-space">
+                                    <i class="fas fa-star text-5xl text-soft-gold opacity-70"></i>
+                                </div>
+                            {% endif %}
+                            
+                            <!-- Gradient overlay -->
+                            <div class="absolute inset-0 bg-gradient-to-t from-deep-space to-transparent opacity-70"></div>
+                        </div>
+                        
+                        <!-- Content Section -->
+                        <div class="p-5">
+                            <h3 class="text-xl font-playfair text-soft-gold group-hover:text-ivory-white transition-colors">
+                                {{ memorial.name }}
+                            </h3>
+                            
+                            {% if memorial.date_of_birth and memorial.date_of_passing %}
+                                <p class="text-faint-lavender text-sm mb-3">
+                                    {{ memorial.date_of_birth|date:"Y" }} - {{ memorial.date_of_passing|date:"Y" }}
+                                </p>
+                            {% endif %}
+                            
+                            <div class="flex items-center justify-between text-faint-lavender text-sm mt-3 pt-3 border-t border-soft-gold border-opacity-10">
+                                <div class="flex items-center">
+                                    <i class="fas fa-fire text-amber-400 mr-1"></i> 
+                                    <span>{{ memorial.candles.count }} candles</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fas fa-comment text-soft-gold mr-1"></i>
+                                    <span>{{ memorial.messages.count }} messages</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            {% endfor %}
+        </div>
+        
+        <!-- Pagination -->
+        {% if is_paginated %}
+            <div class="mt-10 flex justify-center">
+                <div class="inline-flex rounded-md shadow-sm">
+                    {% if page_obj.has_previous %}
+                        <a href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" 
+                           class="px-4 py-2 rounded-l-md border border-r-0 border-soft-gold border-opacity-20 bg-midnight-blue text-faint-lavender hover:bg-opacity-70 transition-colors">
+                            <i class="fas fa-angle-double-left"></i>
+                        </a>
+                        <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" 
+                           class="px-4 py-2 border border-r-0 border-soft-gold border-opacity-20 bg-midnight-blue text-faint-lavender hover:bg-opacity-70 transition-colors">
+                            <i class="fas fa-angle-left"></i>
+                        </a>
+                    {% endif %}
+                    
+                    <span class="px-4 py-2 border border-soft-gold border-opacity-20 bg-deep-space text-ivory-white">
+                        {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                    </span>
+                    
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" 
+                           class="px-4 py-2 border border-l-0 border-soft-gold border-opacity-20 bg-midnight-blue text-faint-lavender hover:bg-opacity-70 transition-colors">
+                            <i class="fas fa-angle-right"></i>
+                        </a>
+                        <a href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" 
+                           class="px-4 py-2 rounded-r-md border border-l-0 border-soft-gold border-opacity-20 bg-midnight-blue text-faint-lavender hover:bg-opacity-70 transition-colors">
+                            <i class="fas fa-angle-double-right"></i>
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function toggleView() {
+        const standardView = document.getElementById('standard-view');
+        const constellationView = document.getElementById('constellation-view');
+        const toggleButton = document.getElementById('view-toggle');
+
+        if (standardView && constellationView && toggleButton) {
+            const goingConstellation = constellationView.classList.contains('hidden');
+            if (goingConstellation) {
+                standardView.classList.add('hidden');
+                constellationView.classList.remove('hidden');
+                toggleButton.innerHTML = '<i class="fas fa-th-large mr-2"></i> Standard View';
+                toggleButton.setAttribute('aria-pressed', 'true');
+                setTimeout(() => { initConstellationView(constellationView); }, 300);
+            } else {
+                constellationView.classList.add('hidden');
+                standardView.classList.remove('hidden');
+                toggleButton.innerHTML = '<i class="fas fa-star mr-2"></i> Constellation View';
+                toggleButton.setAttribute('aria-pressed', 'false');
+            }
+        }
+    }
+</script>
+{% endblock %}

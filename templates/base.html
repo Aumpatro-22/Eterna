@@ -1,0 +1,428 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Eternal Memories{% endblock %}</title>
+    <!-- Google Fonts: Playfair Display (serif) and Lato (sans-serif) -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Celestial Theme CSS -->
+    <link rel="stylesheet" href="{% static 'css/celestial.css' %}">
+    {% block extra_css %}{% endblock %}
+    <meta name="description" content="Eternal Memories — create digital memorials, preserve tales, and honor loved ones. Public Beta with AI-assisted tributes and imagery." />
+    <meta property="og:title" content="Eternal Memories" />
+    <meta property="og:description" content="Create digital memorials, preserve tales, and honor loved ones. Public Beta." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="{{ request.build_absolute_uri|default:'' }}" />
+    <meta property="og:image" content="{% static 'images/candle.png' %}" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Eternal Memories" />
+    <meta name="twitter:description" content="Create digital memorials, preserve tales, and honor loved ones. Public Beta." />
+    <meta name="twitter:image" content="{% static 'images/candle.png' %}" />
+</head>
+<body class="min-h-screen flex flex-col bg-gradient-to-b from-deep-space to-midnight-blue">
+    <!-- Animated stars background -->
+    <div class="star-field fixed inset-0 -z-10 pointer-events-none"></div>
+    
+    <!-- Header with glass morphism effect -->
+    <header class="sticky top-0 z-40 backdrop-filter backdrop-blur-lg bg-opacity-70 bg-midnight-blue shadow-lg border-b border-soft-gold border-opacity-10">
+        <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
+            <a href="{% url 'home' %}" class="flex items-center group">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-soft-gold to-midnight-blue flex items-center justify-center mr-3 transform transition-all duration-500 group-hover:rotate-[360deg]">
+                    <i class="fas fa-star text-ivory-white"></i>
+                </div>
+                <span class="text-2xl font-playfair text-soft-gold tracking-wider">Eternal Memories</span>
+            </a>
+            
+            <!-- Desktop Navigation -->
+            <div class="hidden md:flex items-center space-x-6">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'home' %}" class="text-faint-lavender hover:text-ivory-white transition-colors {% if request.path == '/' %}text-ivory-white{% endif %}" aria-current="{% if request.path == '/' %}page{% endif %}">Home</a>
+                    <a href="{% url 'communities:list' %}" class="text-faint-lavender hover:text-ivory-white transition-colors {% if request.path|slice:':12' == '/communities' %}text-ivory-white{% endif %}" aria-current="{% if request.path|slice:':12' == '/communities' %}page{% endif %}">Communities</a>
+                    <a href="{% url 'tales:list' %}" class="text-faint-lavender hover:text-ivory-white transition-colors {% if request.path|slice:':7' == '/tales/' %}text-ivory-white{% endif %}" aria-current="{% if request.path|slice:':7' == '/tales/' %}page{% endif %}">Tales</a>
+                    <!-- People Search trigger (use free icon, add a11y) -->
+                    <button id="open-people-search" type="button" aria-haspopup="dialog" aria-controls="people-search-overlay"
+                            class="text-faint-lavender hover:text-ivory-white transition-colors flex items-center">
+                        <i class="fas fa-magnifying-glass mr-2"></i> Search People
+                    </button>
+                    <a href="{% url 'create_memorial' %}" class="relative px-5 py-2 overflow-hidden group bg-gradient-to-r from-soft-gold to-amber-600 text-white rounded-lg">
+                        <span class="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-soft-gold to-amber-500 opacity-50 transform scale-x-0 scale-y-0 group-hover:scale-x-100 group-hover:scale-y-100 transition-transform duration-500 origin-center"></span>
+                        <span class="relative flex items-center">
+                            <i class="fas fa-plus mr-2"></i> Create Memorial
+                        </span>
+                    </a>
+                    <!-- CHANGED: click-toggle user menu -->
+                    <div class="relative" id="user-menu-wrapper">
+                        <button id="user-menu-button" type="button" aria-haspopup="true" aria-expanded="false"
+                                class="flex items-center space-x-2 focus:outline-none text-ivory-white">
+                            <span class="h-8 w-8 rounded-full bg-soft-gold bg-opacity-20 flex items-center justify-center text-soft-gold">
+                                {{ user.username.0|upper }}
+                            </span>
+                            <span class="text-faint-lavender">{{ user.username }}</span>
+                            <i class="fas fa-chevron-down text-xs transition-transform" id="user-menu-caret"></i>
+                        </button>
+                        <div id="user-menu"
+                             class="absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-deep-space border border-soft-gold border-opacity-20 backdrop-filter backdrop-blur-lg hidden z-50">
+                            <form method="post" action="{% url 'logout' %}">
+                                {% csrf_token %}
+                                <button type="submit" class="w-full text-left block px-4 py-2 text-ivory-white hover:bg-soft-gold hover:bg-opacity-10">
+                                    <i class="fas fa-sign-out-alt mr-2"></i> Sign Out
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    <!-- END CHANGED -->
+                {% else %}
+                    <a href="{% url 'home' %}" class="text-faint-lavender hover:text-ivory-white transition-colors {% if request.path == '/' %}text-ivory-white{% endif %}" aria-current="{% if request.path == '/' %}page{% endif %}">Home</a>
+                    <a href="{% url 'communities:list' %}" class="text-faint-lavender hover:text-ivory-white transition-colors {% if request.path|slice:':12' == '/communities' %}text-ivory-white{% endif %}" aria-current="{% if request.path|slice:':12' == '/communities' %}page{% endif %}">Communities</a>
+                    <a href="{% url 'tales:list' %}" class="text-faint-lavender hover:text-ivory-white transition-colors {% if request.path|slice:':7' == '/tales/' %}text-ivory-white{% endif %}" aria-current="{% if request.path|slice:':7' == '/tales/' %}page{% endif %}">Tales</a>
+                    <a href="{% url 'login' %}" class="text-faint-lavender hover:text-soft-gold transition-colors">
+                        <i class="fas fa-sign-in-alt mr-1"></i> Sign In
+                    </a>
+                    <a href="{% url 'register' %}" class="relative px-5 py-2 overflow-hidden group bg-gradient-to-r from-soft-gold to-amber-600 text-white rounded-lg">
+                        <span class="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-soft-gold to-amber-500 opacity-50 transform scale-x-0 scale-y-0 group-hover:scale-x-100 group-hover:scale-y-100 transition-transform duration-500 origin-center"></span>
+                        <span class="relative flex items-center">
+                            <i class="fas fa-user-plus mr-2"></i> Sign Up
+                        </span>
+                    </a>
+                {% endif %}
+            </div>
+            
+            <!-- Mobile menu button -->
+            <button id="mobile-menu-button" class="md:hidden text-ivory-white focus:outline-none" aria-expanded="false">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+        </nav>
+        <!-- Mobile Navigation -->
+        <div id="mobile-menu" class="hidden md:hidden bg-deep-space border-t border-soft-gold border-opacity-10">
+            <div class="px-2 pt-2 pb-3 space-y-1">
+                <a href="{% url 'home' %}" class="block px-3 py-2 text-faint-lavender hover:bg-soft-gold hover:bg-opacity-10 rounded-md">Home</a>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'create_memorial' %}" class="block px-3 py-2 text-faint-lavender hover:bg-soft-gold hover:bg-opacity-10 rounded-md">
+                        <i class="fas fa-plus mr-2"></i> Create Memorial
+                    </a>
+                    <a href="{% url 'logout' %}" class="block px-3 py-2 text-faint-lavender hover:bg-soft-gold hover:bg-opacity-10 rounded-md">
+                        <i class="fas fa-sign-out-alt mr-2"></i> Sign Out
+                    </a>
+                {% else %}
+                    <a href="{% url 'login' %}" class="block px-3 py-2 text-faint-lavender hover:bg-soft-gold hover:bg-opacity-10 rounded-md">
+                        <i class="fas fa-sign-in-alt mr-2"></i> Sign In
+                    </a>
+                    <a href="{% url 'register' %}" class="block px-3 py-2 text-faint-lavender hover:bg-soft-gold hover:bg-opacity-10 rounded-md">
+                        <i class="fas fa-user-plus mr-2"></i> Sign Up
+                    </a>
+                {% endif %}
+                <!-- Add mobile search trigger -->
+                <button id="open-people-search-mobile" type="button"
+                        class="w-full text-left block px-3 py-2 text-faint-lavender hover:bg-soft-gold hover:bg-opacity-10 rounded-md">
+                    <i class="fas fa-magnifying-glass mr-2"></i> Search People
+                </button>
+            </div>
+        </div>
+    </header>
+    
+    <!-- People Search Overlay -->
+    <div id="people-search-overlay" class="fixed inset-0 z-50 hidden" role="dialog" aria-modal="true" aria-label="People Search">
+        <!-- Give backdrop an id so outside-click closes -->
+        <div id="people-search-backdrop" class="absolute inset-0 bg-black bg-opacity-50"></div>
+        <div class="relative max-w-2xl mx-auto mt-24 px-4 z-10">
+            <div class="bg-deep-space bg-opacity-80 border border-soft-gold border-opacity-20 rounded-xl shadow-xl backdrop-filter backdrop-blur-lg">
+                <div class="flex items-center px-4 py-3 border-b border-soft-gold border-opacity-10">
+                    <i class="fas fa-magnifying-glass text-soft-gold mr-3"></i>
+                    <!-- Remove autofocus attribute to avoid page-load focus jump -->
+                    <input id="people-search-input" type="text" placeholder="Search people by name, username, or tags..."
+                           class="w-full bg-transparent outline-none text-ivory-white placeholder-faint-lavender">
+                    <button id="close-people-search" class="ml-3 text-faint-lavender hover:text-ivory-white" aria-label="Close search">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div id="people-search-results" class="max-h-96 overflow-y-auto p-2">
+                    <!-- Results injected here -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <main class="container mx-auto px-4 py-8 flex-grow">
+        {% if messages %}
+            <div class="mb-6 space-y-3">
+                {% for message in messages %}
+                    <div class="p-4 rounded-lg mb-4 backdrop-filter backdrop-blur-sm animate-fadeIn 
+                        {% if message.tags == 'error' %}bg-red-900 bg-opacity-30 border border-red-500 border-opacity-50 text-red-200
+                        {% else %}bg-green-900 bg-opacity-30 border border-green-500 border-opacity-50 text-green-200{% endif %}">
+                        <div class="flex items-center">
+                            {% if message.tags == 'error' %}
+                                <i class="fas fa-exclamation-circle mr-3 text-red-400"></i>
+                            {% else %}
+                                <i class="fas fa-check-circle mr-3 text-green-400"></i>
+                            {% endif %}
+                            {{ message }}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        
+        {% block content %}{% endblock %}
+    </main>
+    
+    <footer class="mt-auto py-8 bg-deep-space bg-opacity-80 border-t border-soft-gold border-opacity-10">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between">
+                <div class="mb-8 md:mb-0">
+                    <div class="flex items-center mb-4">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-soft-gold to-midnight-blue flex items-center justify-center mr-3">
+                            <i class="fas fa-star text-ivory-white"></i>
+                        </div>
+                        <h3 class="text-xl font-playfair text-soft-gold tracking-wider">Eternal Memories</h3>
+                    </div>
+                    <p class="text-faint-lavender max-w-xs">Every life is a star in eternity, shining forever in our memories.</p>
+                    <div class="flex space-x-4 mt-4">
+                        <a href="#" class="w-9 h-9 rounded-full bg-midnight-blue flex items-center justify-center text-faint-lavender hover:text-soft-gold transition-colors">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="w-9 h-9 rounded-full bg-midnight-blue flex items-center justify-center text-faint-lavender hover:text-soft-gold transition-colors">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="w-9 h-9 rounded-full bg-midnight-blue flex items-center justify-center text-faint-lavender hover:text-soft-gold transition-colors">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-8">
+                    <div>
+                        <h4 class="text-soft-gold font-medium mb-4">Site Links</h4>
+                        <ul class="space-y-2">
+                            <li><a href="{% url 'home' %}" class="text-faint-lavender hover:text-soft-gold transition-colors">Home</a></li>
+                            <li><a href="{% url 'about' %}" class="text-faint-lavender hover:text-soft-gold transition-colors">About Us</a></li>
+                            <li><a href="{% url 'contact' %}" class="text-faint-lavender hover:text-soft-gold transition-colors">Contact</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h4 class="text-soft-gold font-medium mb-4">Resources</h4>
+                        <ul class="space-y-2">
+                            <li><a href="#" class="text-faint-lavender hover:text-soft-gold transition-colors">Help & Support</a></li>
+                            <li><a href="https://github.com/Aumpatro-22/Eterna" target="_blank" rel="noopener" class="text-faint-lavender hover:text-soft-gold transition-colors">GitHub</a></li>
+                            <li><a href="{% url 'privacy' %}" class="text-faint-lavender hover:text-soft-gold transition-colors">Privacy Policy</a></li>
+                            <li><a href="#" class="text-faint-lavender hover:text-soft-gold transition-colors">Terms of Service</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-8 pt-8 border-t border-soft-gold border-opacity-10 text-center">
+                <p class="text-faint-lavender">&copy; {% now "Y" %} Eternal Memories. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Audio element for candle lighting -->
+    <audio id="chime-sound" preload="auto">
+        <source src="{% static 'audio/soft-chime.mp3' %}" type="audio/mpeg">
+    </audio>
+    
+    <!-- Celestial Theme JS -->
+    <script src="{% static 'js/celestial.js' %}"></script>
+    <script>
+        // Mobile menu
+        document.getElementById('mobile-menu-button').addEventListener('click', function() {
+            const menu = document.getElementById('mobile-menu');
+            const expanded = this.getAttribute('aria-expanded') === 'true';
+            this.setAttribute('aria-expanded', String(!expanded));
+            menu.classList.toggle('hidden');
+        });
+
+        // Desktop user menu: click to toggle, close on outside click/ESC
+        (function () {
+            const wrapper = document.getElementById('user-menu-wrapper');
+            const btn = document.getElementById('user-menu-button');
+            const menu = document.getElementById('user-menu');
+            const caret = document.getElementById('user-menu-caret');
+            if (!wrapper || !btn || !menu) return;
+
+            function openMenu() {
+                menu.classList.remove('hidden');
+                btn.setAttribute('aria-expanded', 'true');
+                if (caret) caret.classList.add('rotate-180');
+            }
+            function closeMenu() {
+                menu.classList.add('hidden');
+                btn.setAttribute('aria-expanded', 'false');
+                if (caret) caret.classList.remove('rotate-180');
+            }
+            function toggleMenu() {
+                if (menu.classList.contains('hidden')) openMenu(); else closeMenu();
+            }
+
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                toggleMenu();
+            });
+
+            document.addEventListener('click', function(e) {
+                if (!wrapper.contains(e.target)) {
+                    closeMenu();
+                }
+            });
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeMenu();
+                }
+            });
+        })();
+
+        // People search overlay logic with debounce + loading + abort + keyboard + better outside click
+        (function () {
+            const overlay = document.getElementById('people-search-overlay');
+            const openBtn = document.getElementById('open-people-search');
+            const openBtnMobile = document.getElementById('open-people-search-mobile');
+            const closeBtn = document.getElementById('close-people-search');
+            const backdrop = document.getElementById('people-search-backdrop');
+            const input = document.getElementById('people-search-input');
+            const results = document.getElementById('people-search-results');
+            let timer = null;
+            let controller = null;
+            let activeIndex = -1;
+
+            if (!overlay || !closeBtn || !backdrop || !input || !results) return;
+
+            const open = () => {
+                overlay.classList.remove('hidden');
+                document.body.classList.add('overflow-hidden');
+                setTimeout(() => { input.focus(); input.select(); }, 0);
+            };
+            const close = () => {
+                overlay.classList.add('hidden');
+                document.body.classList.remove('overflow-hidden');
+                results.innerHTML = '';
+                input.value = '';
+                activeIndex = -1;
+                if (controller) controller.abort();
+            };
+
+            if (openBtn) openBtn.addEventListener('click', open);
+            if (openBtnMobile) openBtnMobile.addEventListener('click', open);
+            closeBtn.addEventListener('click', close);
+            // Close when clicking the dark backdrop
+            backdrop.addEventListener('click', close);
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') close();
+                // Press "/" anywhere to open quick search if overlay is hidden
+                if (e.key === '/' && overlay.classList.contains('hidden') && !e.ctrlKey && !e.metaKey && !e.altKey) {
+                    const tag = (document.activeElement && document.activeElement.tagName) || '';
+                    if (!['INPUT', 'TEXTAREA', 'SELECT'].includes(tag)) {
+                        e.preventDefault();
+                        open();
+                    }
+                }
+            });
+
+            input.addEventListener('input', function () {
+                clearTimeout(timer);
+                const q = this.value.trim();
+                if (!q) { results.innerHTML = ''; if (controller) controller.abort(); activeIndex = -1; return; }
+                results.innerHTML = '<div class="px-4 py-4 text-center text-faint-lavender"><i class="fas fa-spinner fa-spin mr-2"></i>Searching…</div>';
+                timer = setTimeout(() => doSearch(q), 250);
+            });
+
+            function doSearch(q) {
+                if (controller) controller.abort();
+                controller = new AbortController();
+                const url = `{% url 'search_profiles' %}?q=${encodeURIComponent(q)}&limit=10`;
+                fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' }, signal: controller.signal })
+                    .then(r => r.json())
+                    .then data => {
+                        renderResults(data.results || []);
+                        activeIndex = (data.results && data.results.length) ? 0 : -1;
+                        updateActiveItem();
+                    })
+                    .catch(err => {
+                        if (err.name !== 'AbortError') {
+                            results.innerHTML = '<div class="px-4 py-6 text-center text-faint-lavender">Something went wrong. Please try again.</div>';
+                        }
+                    });
+            }
+
+            function renderResults(items) {
+                if (!items.length) {
+                    results.innerHTML = '<div class="px-4 py-6 text-center text-faint-lavender">No people found.</div>';
+                    return;
+                }
+                results.innerHTML = items.map((item, idx) => `
+                    <a href="${item.url}" class="result-item flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-5 transition-colors"
+                       data-index="${idx}">
+                        <div class="w-10 h-10 rounded-full bg-midnight-blue flex items-center justify-center mr-3 overflow-hidden">
+                            ${item.avatar ? `<img src="${item.avatar}" alt="${item.username}" class="w-full h-full object-cover">`
+                                           : `<span class="text-soft-gold font-semibold">${(item.display_name || item.username || '?').charAt(0).toUpperCase()}</span>`}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2">
+                                <span class="text-ivory-white font-medium truncate">${item.display_name || item.username}</span>
+                                <span class="text-faint-lavender text-sm truncate">@${item.username}</span>
+                            </div>
+                            <div class="text-faint-lavender text-xs mt-1 truncate">${item.bio || ''}</div>
+                            ${item.tags && item.tags.length ? `<div class="mt-1 flex flex-wrap gap-1">
+                                ${item.tags.slice(0, 4).map(t => `<span class="px-2 py-0.5 text-[10px] rounded bg-midnight-blue border border-soft-gold border-opacity-20 text-faint-lavender">${t}</span>`).join('')}
+                            </div>` : ''}
+                        </div>
+                        <i class="fas fa-chevron-right text-faint-lavender ml-3"></i>
+                    </a>
+                `).join('');
+
+                // Mouse hover selection
+                results.querySelectorAll('.result-item').forEach(item => {
+                    item.addEventListener('mouseenter', () => {
+                        activeIndex = parseInt(item.getAttribute('data-index'), 10);
+                        updateActiveItem();
+                    });
+                });
+            }
+
+            function updateActiveItem() {
+                const items = results.querySelectorAll('.result-item');
+                items.forEach(el => el.classList.remove('bg-white', 'bg-opacity-10'));
+                if (activeIndex >= 0 && items[activeIndex]) {
+                    items[activeIndex].classList.add('bg-white', 'bg-opacity-10');
+                    // ensure visible
+                    const el = items[activeIndex];
+                    const parent = results;
+                    const elTop = el.offsetTop;
+                    const elBottom = elTop + el.offsetHeight;
+                    const viewTop = parent.scrollTop;
+                    const viewBottom = viewTop + parent.clientHeight;
+                    if (elTop < viewTop) parent.scrollTop = elTop;
+                    else if (elBottom > viewBottom) parent.scrollTop = elBottom - parent.clientHeight;
+                }
+            }
+
+            input.addEventListener('keydown', (e) => {
+                const items = results.querySelectorAll('.result-item');
+                if (!items.length) return;
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    activeIndex = Math.min(activeIndex + 1, items.length - 1);
+                    updateActiveItem();
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    activeIndex = Math.max(activeIndex - 1, 0);
+                    updateActiveItem();
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (activeIndex >= 0 && items[activeIndex]) {
+                        window.location.href = items[activeIndex].getAttribute('href');
+                    }
+                }
+            });
+        })();
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

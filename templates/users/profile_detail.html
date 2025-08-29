@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+{% block title %}{{ profile_user.username }} | Profile{% endblock %}
+
+{% block content %}
+{% if not_found %}
+  <div class="celestial-card p-6 text-center fade-in">User not found.</div>
+{% else %}
+<div class="fade-in space-y-6">
+  <div class="celestial-card p-6 flex items-center gap-4">
+    <div class="w-16 h-16 rounded-full bg-midnight-blue overflow-hidden flex items-center justify-center">
+      {% if profile_user.profile.profile_image %}
+        <img src="{{ profile_user.profile.profile_image.url }}" alt="{{ profile_user.username }}" class="w-full h-full object-cover">
+      {% else %}
+        <span class="text-soft-gold text-2xl font-semibold">{{ profile_user.username|first|upper }}</span>
+      {% endif %}
+    </div>
+    <div class="flex-1">
+      <h1 class="text-2xl font-playfair text-soft-gold">{{ profile_user.profile.display_name|default:profile_user.username }}</h1>
+      <p class="text-faint-lavender">{{ profile_user.profile.bio }}</p>
+      {% if profile_user.profile.tags %}
+        <div class="flex flex-wrap gap-1 mt-2">
+          {% for t in profile_user.profile.tags_list %}
+            <span class="px-2 py-0.5 text-[10px] rounded bg-midnight-blue border border-soft-gold border-opacity-20 text-faint-lavender">{{ t }}</span>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+    {% if user.is_authenticated and user != profile_user %}
+      <form id="dm-form" method="post" action="{% url 'send_dm' username=profile_user.username %}" class="flex items-center gap-2">
+        {% csrf_token %}
+        <input type="text" name="message" placeholder="Say hello…" class="bg-transparent border border-soft-gold border-opacity-30 rounded px-3 py-2 text-ivory-white" />
+        <button type="submit" class="px-3 py-2 celestial-button rounded"><i class="fas fa-paper-plane mr-1"></i>Send</button>
+      </form>
+    {% endif %}
+  </div>
+
+  {% if user.is_authenticated and user != profile_user and convo %}
+    <div class="celestial-card p-4">
+      <h2 class="text-xl text-soft-gold mb-3">Recent Conversation</h2>
+      <div id="dm-thread" class="space-y-2">
+        {% for m in convo %}
+          <div class="text-sm {% if m.sender_id == user.id %}text-ivory-white{% else %}text-faint-lavender{% endif %}">
+            <span class="text-soft-gold">{{ m.sender.username }}</span>:
+            {{ m.content }}
+            <span class="text-xs text-faint-lavender">• {{ m.created_at|date:"M d, Y H:i" }}</span>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <section class="celestial-card p-5">
+      <h2 class="text-xl text-soft-gold mb-4">Memorials</h2>
+      {% if memorials %}
+        <div class="space-y-3">
+          {% for m in memorials %}
+            <div class="flex items-center justify-between">
+              <a href="{% url 'memorial_detail' m.pk %}" class="celestial-link">{{ m.name }}</a>
+              <div class="flex items-center gap-2" data-type="memorial" data-id="{{ m.id }}">
+                <button class="react-btn px-2 py-1 text-xs rounded {% if m.my_react == 'like' %}bg-white bg-opacity-10{% endif %}" data-reaction="like">
+                  👍 <span class="rc"> {{ m.count_like }}</span>
+                </button>
+                <button class="react-btn px-2 py-1 text-xs rounded {% if m.my_react == 'love' %}bg-white bg-opacity-10{% endif %}" data-reaction="love">
+                  ❤️ <span class="rc"> {{ m.count_love }}</span>
+                </button>
+                <button class="react-btn px-2 py-1 text-xs rounded {% if m.my_react == 'support' %}bg-white bg-opacity-10{% endif %}" data-reaction="support">
+                  🕊 <span class="rc"> {{ m.count_support }}</span>
+                </button>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="text-faint-lavender text-sm">No memorials yet.</p>
+      {% endif %}
+    </section>
+
+    <section class="celestial-card p-5">
+      <h2 class="text-xl text-soft-gold mb-4">Tales</h2>
+      {% if tales %}
+        <div class="space-y-3">
+          {% for t in tales %}
+            <div class="flex items-center justify-between">
+              <a href="{% url 'tales:detail' slug=t.slug %}" class="celestial-link">{{ t.title }}</a>
+              <div class="flex items-center gap-2" data-type="tale" data-id="{{ t.id }}">
+                <button class="react-btn px-2 py-1 text-xs rounded {% if t.my_react == 'like' %}bg-white bg-opacity-10{% endif %}" data-reaction="like">
+                  👍 <span class="rc"> {{ t.count_like }}</span>
+                </button>
+                <button class="react-btn px-2 py-1 text-xs rounded {% if t.my_react == 'love' %}bg-white bg-opacity-10{% endif %}" data-reaction="love">
+                  ❤️ <span class="rc"> {{ t.count_love }}</span>
+                </button>
+                <button class="react-btn px-2 py-1 text-xs rounded {% if t.my_react == 'support' %}bg-white bg-opacity-10{% endif %}" data-reaction="support">
+                  🕊 <span class="rc"> {{ t.count_support }}</span>
+                </button>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="text-faint-lavender text-sm">No tales yet.</p>
+      {% endif %}
+    </section>
+  </div>
+</div>
+
+{% if user.is_authenticated %}
+<script>
+(function(){
+  function getCookie(name) {
+    const v = `; ${document.cookie}`.split(`; ${name}=`); if (v.length === 2) return v.pop().split(';').shift();
+  }
+  const csrftoken = getCookie('csrftoken');
+
+  // Reactions
+  document.querySelectorAll('.react-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const wrap = e.target.closest('[data-type]');
+      const model = wrap.getAttribute('data-type');
+      const id = wrap.getAttribute('data-id');
+      const reaction = e.target.closest('button').getAttribute('data-reaction');
+      fetch("{% url 'react' %}", {
+        method: 'POST',
+        headers: { 'X-CSRFToken': csrftoken, 'X-Requested-With': 'XMLHttpRequest' },
+        body: new URLSearchParams({ model, id, reaction })
+      }).then(r => r.json()).then(data => {
+        if (data.status === 'ok') {
+          const counts = data.counts;
+          const buttons = wrap.querySelectorAll('.react-btn');
+          buttons.forEach(b => b.classList.remove('bg-white','bg-opacity-10'));
+          if (data.active) {
+            wrap.querySelector(`.react-btn[data-reaction="${data.type}"]`).classList.add('bg-white','bg-opacity-10');
+          }
+          const rc = wrap.querySelectorAll('.rc');
+          rc[0].textContent = ' ' + (counts.like || 0);
+          rc[1].textContent = ' ' + (counts.love || 0);
+          rc[2].textContent = ' ' + (counts.support || 0);
+        }
+      });
+    });
+  });
+
+  // DM submit
+  const dmForm = document.getElementById('dm-form');
+  if (dmForm) {
+    dmForm.addEventListener('submit', function(e){
+      e.preventDefault();
+      const data = new FormData(dmForm);
+      fetch(dmForm.action, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': csrftoken, 'X-Requested-With': 'XMLHttpRequest' },
+        body: data
+      }).then(r => r.json()).then(res => {
+        if (res.status === 'ok') {
+          const thread = document.getElementById('dm-thread');
+          if (thread) {
+            const el = document.createElement('div');
+            el.className = 'text-sm text-ivory-white';
+            el.innerHTML = `<span class="text-soft-gold">{{ user.username }}</span>: ${res.message} <span class="text-xs text-faint-lavender">• ${res.created_at}</span>`;
+            thread.appendChild(el);
+          }
+          dmForm.reset();
+        }
+      });
+    });
+  }
+})();
+</script>
+{% endif %}
+{% endif %}
+{% endblock %}

@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block title %}Contact Us | Eternal Memories{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto space-y-8 fade-in">
+  <header class="text-center">
+    <h1 class="text-4xl font-playfair text-soft-gold">Contact Us</h1>
+    <p class="text-faint-lavender mt-2">We’d love to hear from you</p>
+  </header>
+
+  <section class="celestial-card p-6">
+    <h2 class="text-2xl font-playfair text-soft-gold mb-3">About Us</h2>
+    <p class="text-ivory-white">
+      Thank you for visiting Eternal Memories.<br><br>
+      This project was born from a simple but powerful thought:<br><br>
+      <em>“No one should ever be forgotten. Even after death, their love, laughter, and presence should live on.”</em><br><br>
+      I created this platform so that families and friends can preserve the legacy of their loved ones — through stories, images, and shared moments.
+      In today’s fast-moving world, memories often fade too quickly. Eternal Memories is my way of giving people a digital space where remembrance
+      becomes timeless, and love never fades.
+    </p>
+  </section>
+
+  <section class="celestial-card p-6">
+    <h2 class="text-2xl font-playfair text-soft-gold mb-3">Connect</h2>
+    <p class="text-ivory-white mb-4">If you have feedback, suggestions, or would like to collaborate, connect here:</p>
+    <div class="flex flex-wrap gap-3">
+      <a href="https://www.linkedin.com/in/aum-patro-39ba28241/?utm_source=chatgpt.com" class="px-4 py-2 celestial-button rounded" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="https://www.instagram.com/" class="px-4 py-2 celestial-button rounded" target="_blank" rel="noopener">Instagram</a>
+    </div>
+  </section>
+
+  <section class="celestial-card p-6">
+    <h2 class="text-2xl font-playfair text-soft-gold mb-3">Send a Message</h2>
+    <form method="post" class="space-y-4">
+      {% csrf_token %}
+      <div>
+        <label class="block text-ivory-white mb-1">Your Name</label>
+        {{ form.name }}
+      </div>
+      <div>
+        <label class="block text-ivory-white mb-1">Your Email</label>
+        {{ form.email }}
+      </div>
+      <div>
+        <label class="block text-ivory-white mb-1">Message</label>
+        {{ form.message }}
+      </div>
+      <div class="flex justify-end">
+        <button type="submit" class="px-6 py-2 celestial-button rounded">
+          <i class="fas fa-paper-plane mr-2"></i> Send
+        </button>
+      </div>
+    </form>
+  </section>
+</div>
+{% endblock %}

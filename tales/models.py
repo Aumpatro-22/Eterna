@@ -13,7 +13,15 @@ class Tale(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.title)[:175]
+            base = slugify(self.title)[:175]
+            candidate = base
+            i = 2
+            # Ensure uniqueness; exclude self when updating
+            while Tale.objects.filter(slug=candidate).exclude(pk=self.pk).exists():
+                suffix = f"-{i}"
+                candidate = f"{base[:175 - len(suffix)]}{suffix}"
+                i += 1
+            self.slug = candidate
         super().save(*args, **kwargs)
 
     def __str__(self):

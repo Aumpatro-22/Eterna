@@ -53,6 +53,15 @@
               <button type="submit" class="px-2 py-1 text-xs celestial-button rounded">Publish</button>
             </form>
           {% endif %}
+          {% if user.is_authenticated and user == tale.author %}
+            <!-- NEW: Delete tale -->
+            <form method="post" action="{% url 'tales:delete' slug=tale.slug %}" class="inline" onsubmit="return confirm('Delete this tale and all its chapters?');">
+              {% csrf_token %}
+              <button type="submit" class="px-2 py-1 text-xs rounded border border-red-400 text-red-300 hover:bg-red-900 hover:bg-opacity-20">
+                Delete
+              </button>
+            </form>
+          {% endif %}
         </div>
       </div>
       <article class="prose max-w-none text-ivory-white whitespace-pre-line">

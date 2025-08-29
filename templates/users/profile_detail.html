@@ -26,11 +26,17 @@
       {% endif %}
     </div>
     {% if user.is_authenticated and user != profile_user %}
-      <form id="dm-form" method="post" action="{% url 'send_dm' username=profile_user.username %}" class="flex items-center gap-2">
-        {% csrf_token %}
-        <input type="text" name="message" placeholder="Say hello…" class="bg-transparent border border-soft-gold border-opacity-30 rounded px-3 py-2 text-ivory-white" />
-        <button type="submit" class="px-3 py-2 celestial-button rounded"><i class="fas fa-paper-plane mr-1"></i>Send</button>
-      </form>
+      <div class="flex items-center gap-2">
+        <form id="dm-form" method="post" action="{% url 'send_dm' username=profile_user.username %}" class="flex items-center gap-2">
+          {% csrf_token %}
+          <input type="text" name="message" placeholder="Say hello…" class="bg-transparent border border-soft-gold border-opacity-30 rounded px-3 py-2 text-ivory-white" />
+          <button type="submit" class="px-3 py-2 celestial-button rounded"><i class="fas fa-paper-plane mr-1"></i>Send</button>
+        </form>
+        <!-- NEW: open full chat -->
+        <a href="{% url 'dm_thread' username=profile_user.username %}" class="px-3 py-2 celestial-button rounded">
+          <i class="fas fa-comments mr-1"></i> Open Chat
+        </a>
+      </div>
     {% endif %}
   </div>
 

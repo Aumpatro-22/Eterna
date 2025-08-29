@@ -104,9 +104,13 @@
                     <a href="{% url 'create_memorial' %}" class="block px-3 py-2 text-faint-lavender hover:bg-soft-gold hover:bg-opacity-10 rounded-md">
                         <i class="fas fa-plus mr-2"></i> Create Memorial
                     </a>
-                    <a href="{% url 'logout' %}" class="block px-3 py-2 text-faint-lavender hover:bg-soft-gold hover:bg-opacity-10 rounded-md">
-                        <i class="fas fa-sign-out-alt mr-2"></i> Sign Out
-                    </a>
+                    <!-- CHANGED: use POST for logout (consistent/safe) -->
+                    <form method="post" action="{% url 'logout' %}" class="px-3 py-2">
+                        {% csrf_token %}
+                        <button type="submit" class="w-full text-left text-faint-lavender hover:bg-soft-gold hover:bg-opacity-10 rounded-md px-3 py-2">
+                            <i class="fas fa-sign-out-alt mr-2"></i> Sign Out
+                        </button>
+                    </form>
                 {% else %}
                     <a href="{% url 'login' %}" class="block px-3 py-2 text-faint-lavender hover:bg-soft-gold hover:bg-opacity-10 rounded-md">
                         <i class="fas fa-sign-in-alt mr-2"></i> Sign In
@@ -338,7 +342,8 @@
                 const url = `{% url 'search_profiles' %}?q=${encodeURIComponent(q)}&limit=10`;
                 fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' }, signal: controller.signal })
                     .then(r => r.json())
-                    .then data => {
+                    // FIX: correct arrow function parentheses
+                    .then(data => {
                         renderResults(data.results || []);
                         activeIndex = (data.results && data.results.length) ? 0 : -1;
                         updateActiveItem();

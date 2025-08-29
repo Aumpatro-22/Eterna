@@ -27,6 +27,27 @@
         </li>
       {% endfor %}
     </ul>
+
+    {% if is_admin %}
+      <hr class="my-4 border-soft-gold border-opacity-10" />
+      <div>
+        <div class="text-xs text-faint-lavender mb-2"><i class="fas fa-plus text-soft-gold mr-1"></i>Create Channel</div>
+        <form method="post" action="{% url 'communities:channel_create' slug=community.slug %}" class="space-y-2">
+          {% csrf_token %}
+          <!-- Minimal inline fields -->
+          {{ chan_form.name }}
+          <label class="flex items-center gap-2 text-xs text-faint-lavender">
+            {{ chan_form.is_public }} Public
+          </label>
+          <button type="submit" class="w-full py-1 celestial-button rounded text-sm">Add</button>
+          {% if chan_form.errors %}
+            <div class="text-rose-tint text-xs">
+              {{ chan_form.errors }}
+            </div>
+          {% endif %}
+        </form>
+      </div>
+    {% endif %}
   </aside>
 
   <!-- Chat -->
@@ -38,7 +59,7 @@
 
     <div id="chat-log" class="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
       {% for m in messages %}
-        <div class="border-b border-soft-gold border-opacity-10 pb-2">
+        <div data-id="{{ m.id }}" class="border-b border-soft-gold border-opacity-10 pb-2">
           <div class="text-sm text-faint-lavender">{{ m.author.username }} • {{ m.created_at|date:"M d, Y H:i" }}</div>
           <div class="text-ivory-white whitespace-pre-line">{{ m.content }}</div>
         </div>
@@ -74,8 +95,12 @@
 
     const chatLog = document.getElementById('chat-log');
     const form = document.getElementById('chat-form');
-    let lastTs = null;
+    const initialLastTs = "{{ latest_ts|default:'' }}";
+    let lastTs = initialLastTs || null;
     const feedUrl = "{% url 'communities:messages_feed' slug=community.slug channel_slug=channel.slug %}";
+
+    // Track seen ids to prevent duplicates
+    const seen = new Set(Array.from(chatLog.querySelectorAll('[data-id]')).map(el => el.getAttribute('data-id')));
 
     function scrollBottom() {
       chatLog.scrollTop = chatLog.scrollHeight;
@@ -92,7 +117,8 @@
           headers: { 'X-Requested-With': 'XMLHttpRequest' }
         }).then(r => r.json()).then(res => {
           if (res.status === 'success') {
-            appendMsg({author: res.author, content: res.content, created_at: new Date().toISOString()});
+            // Use server id and ISO ts to avoid duplicates on next poll
+            appendMsg({id: res.id, author: res.author, content: res.content, created_at: res.created_at_iso});
             form.reset();
           }
         });
@@ -100,7 +126,12 @@
     }
 
     function appendMsg(m) {
+      const id = m.id != null ? String(m.id) : null;
+      if (id && seen.has(id)) return; // dedupe
+      if (id) seen.add(id);
+
       const wrap = document.createElement('div');
+      if (id) wrap.setAttribute('data-id', id);
       wrap.className = "border-b border-soft-gold border-opacity-10 pb-2";
       wrap.innerHTML = `
         <div class="text-sm text-faint-lavender">${m.author} • ${new Date(m.created_at).toLocaleString()}</div>
@@ -108,7 +139,7 @@
       `;
       chatLog.appendChild(wrap);
       scrollBottom();
-      lastTs = m.created_at;
+      if (m.created_at) lastTs = m.created_at;
     }
 
     function escapeHtml(str) {

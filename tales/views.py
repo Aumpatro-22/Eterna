@@ -5,6 +5,8 @@ from django.db.models import Max
 from django.urls import reverse
 from .models import Tale, Chapter
 from .forms import TaleForm, ChapterForm
+from django.contrib import messages  # NEW
+from django.http import Http404  # NEW
 
 def tale_list(request):
     q = (request.GET.get('q') or '').strip()
@@ -16,7 +18,21 @@ def tale_list(request):
     return render(request, 'tales/tale_list.html', {'tales': qs.order_by('-created_at')})
 
 def tale_detail(request, slug):
-    tale = get_object_or_404(Tale, slug=slug)
+    # Try case-insensitive slug match first
+    tale = Tale.objects.filter(slug__iexact=slug).first()
+    if not tale:
+        # Fallback: try to resolve from title guess (hyphens to spaces) exactly
+        title_guess = slug.replace('-', ' ')
+        guess = Tale.objects.filter(title__iexact=title_guess).first()
+        if guess:
+            return redirect('tales:detail', slug=guess.slug)
+        # Fallback: if exactly one icontains match, redirect to it
+        candidates = Tale.objects.filter(title__icontains=title_guess)[:2]
+        if candidates.count() == 1:
+            return redirect('tales:detail', slug=candidates[0].slug)
+        # Nothing reasonable found
+        raise Http404("Tale not found.")
+
     if not tale.is_public and (not request.user.is_authenticated or tale.author != request.user):
         return HttpResponseForbidden("This tale is private.")
     # Include drafts for the author
@@ -87,3 +103,17 @@ def chapter_publish(request, slug, chapter_id):
         ch.save(update_fields=['published'])
     detail_url = reverse('tales:detail', kwargs={'slug': tale.slug})
     return redirect(f"{detail_url}?c={ch.order}")
+
+# NEW: delete a tale (author only)
+@login_required
+def tale_delete(request, slug):
+    tale = get_object_or_404(Tale, slug=slug)
+    if request.user != tale.author:
+        return HttpResponseForbidden("Only the author can delete this tale.")
+    if request.method != 'POST':
+        # Only allow POST to delete
+        return redirect('tales:detail', slug=tale.slug)
+    title = tale.title
+    tale.delete()  # cascades to chapters
+    messages.success(request, f"Tale '{title}' was deleted.")
+    return redirect('tales:list')

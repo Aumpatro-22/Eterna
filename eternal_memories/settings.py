@@ -16,9 +16,15 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-key-for-dev')
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 # Allow Render's external hostname if provided by platform
-RENDER_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')  # NEW
-if RENDER_HOSTNAME and RENDER_HOSTNAME not in ALLOWED_HOSTS:  # NEW
-    ALLOWED_HOSTS.append(RENDER_HOSTNAME)  # NEW
+RENDER_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')  # CHANGED
+if RENDER_HOSTNAME and RENDER_HOSTNAME not in ALLOWED_HOSTS:  # FIX: complete block
+    ALLOWED_HOSTS.append(RENDER_HOSTNAME)
+
+# NEW: CSRF trusted origins (from Render hostname or env)
+_env_csrf = [o for o in os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',') if o]
+if RENDER_HOSTNAME:  # FIX: complete block
+    _env_csrf.append(f"https://{RENDER_HOSTNAME}")
+CSRF_TRUSTED_ORIGINS = _env_csrf or []
 
 # Application definition
 
@@ -35,11 +41,12 @@ INSTALLED_APPS = [
     'users',
     'communities',
     'tales',
+    'whitenoise.runserver_nostatic',  # NEW: ensure whitenoise controls static even in dev
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # NEW: serve static files on Render
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -76,10 +83,16 @@ DATABASES = {
     }
 }
 # Override with DATABASE_URL when present (Render)
-if os.environ.get('DATABASE_URL'):  # NEW
-    DATABASES['default'] = dj_database_url.config(  # NEW
-        default=os.environ['DATABASE_URL'], conn_max_age=600, ssl_require=True
-    )  # NEW
+if os.environ.get('DATABASE_URL'):  # FIX
+    try:
+        import dj_database_url
+        DATABASES['default'] = dj_database_url.parse(
+            os.environ['DATABASE_URL'],
+            conn_max_age=600,
+            ssl_require=(os.environ.get('PGSSLMODE') == 'require' or not DEBUG)
+        )
+    except Exception:
+        pass
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -106,13 +119,13 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'  # NEW
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [BASE_DIR / 'static'] if (BASE_DIR / 'static').exists() else []
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Media files
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = BASE_DIR / 'media'
 
 # AI API Settings
 GROQ_API_KEY = os.environ.get('GROQ_API_KEY', '')
@@ -126,17 +139,8 @@ LOGOUT_REDIRECT_URL = 'home'
 # Security/Proxy headers for Render (behind proxy)
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')  # NEW
 PRODUCTION = bool(os.environ.get('RENDER')) or not DEBUG  # NEW
-SECURE_SSL_REDIRECT = os.environ.get('SECURE_SSL_REDIRECT', 'True' if PRODUCTION else 'False') == 'True'  # NEW
-SESSION_COOKIE_SECURE = not DEBUG  # NEW
-CSRF_COOKIE_SECURE = not DEBUG  # NEW
-
-# CSRF trusted origins (comma-separated)
-_csrf_origins = os.environ.get('CSRF_TRUSTED_ORIGINS', '')  # NEW
-CSRF_TRUSTED_ORIGINS = [o.strip() for o in _csrf_origins.split(',') if o.strip()]  # NEW
-# Auto-add Render host if present
-if RENDER_HOSTNAME:  # NEW
-    domain = f"https://{RENDER_HOSTNAME}"
-    if domain not in CSRF_TRUSTED_ORIGINS:
-        CSRF_TRUSTED_ORIGINS.append(domain)
+SECURE_SSL_REDIRECT = os.environ.get('SECURE_SSL_REDIRECT', 'False') == 'True'
+SESSION_COOKIE_SECURE = os.environ.get('SESSION_COOKIE_SECURE', 'False') == 'True'
+CSRF_COOKIE_SECURE = os.environ.get('CSRF_COOKIE_SECURE', 'False') == 'True'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

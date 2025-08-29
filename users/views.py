@@ -7,6 +7,8 @@ from django.db.models import Q, Count  # CHANGED
 from django.contrib.auth.models import User  # NEW
 from django.urls import reverse  # NEW
 from django.contrib.contenttypes.models import ContentType  # NEW
+from django.utils import timezone  # NEW
+from django.utils.dateparse import parse_datetime  # NEW
 
 from .models import Profile  # NEW
 from .models import Reaction, DirectMessage  # NEW
@@ -203,7 +205,73 @@ def send_dm(request, username):
     dm = DirectMessage.objects.create(sender=request.user, receiver=receiver, content=content)
     return JsonResponse({
         'status': 'ok',
+        'id': dm.id,  # NEW
         'message': dm.content,
         'sender': request.user.username,
-        'created_at': dm.created_at.strftime('%b %d, %Y %I:%M %p')
+        'created_at': dm.created_at.strftime('%b %d, %Y %I:%M %p'),
+        'created_at_iso': timezone.localtime(dm.created_at).isoformat()  # NEW
     })
+
+# NEW: full-screen personal chat thread
+def dm_thread(request, username):
+    if not request.user.is_authenticated:
+        return HttpResponseForbidden("Auth required")
+    other = User.objects.filter(username=username).first()
+    if not other:
+        return render(request, 'users/dm_thread.html', {'not_found': True}, status=404)
+    if other == request.user:
+        return HttpResponseForbidden("Cannot chat with yourself")
+
+    # Fetch last 50 messages between users, oldest first for display
+    qs = DirectMessage.objects.filter(
+        Q(sender=request.user, receiver=other) | Q(sender=other, receiver=request.user)
+    ).order_by('-created_at')[:50]
+    messages_qs = list(qs)[::-1]
+
+    # Mark received messages as read
+    DirectMessage.objects.filter(receiver=request.user, sender=other, is_read=False).update(is_read=True)
+
+    # NEW: latest timestamp of already-rendered messages (list is oldest->newest)
+    last_ts = None
+    if messages_qs:
+        last_ts = timezone.localtime(messages_qs[-1].created_at).isoformat()
+
+    ctx = {
+        'other': other,
+        'messages': messages_qs,
+        # NEW
+        'last_ts': last_ts,
+    }
+    return render(request, 'users/dm_thread.html', ctx)
+
+# NEW: JSON feed for new messages since timestamp (ISO)
+def dm_feed(request, username):
+    if not request.user.is_authenticated:
+        return JsonResponse({'results': []}, status=401)
+    other = User.objects.filter(username=username).first()
+    if not other:
+        return JsonResponse({'results': []}, status=404)
+
+    since = request.GET.get('since')
+    qs = DirectMessage.objects.filter(
+        Q(sender=request.user, receiver=other) | Q(sender=other, receiver=request.user)
+    ).order_by('created_at')
+    if since:
+        dt = parse_datetime(since)
+        if dt:
+            qs = qs.filter(created_at__gt=dt)
+
+    data = [{
+        'id': m.id,
+        'sender': m.sender.username,
+        'content': m.content,
+        'created_at': timezone.localtime(m.created_at).isoformat()
+    } for m in qs[:100]]
+
+    # Mark received messages as read
+    DirectMessage.objects.filter(receiver=request.user, sender=other, is_read=False).update(is_read=True)
+
+    # CHANGED: disable caching
+    resp = JsonResponse({'results': data})
+    resp['Cache-Control'] = 'no-store'
+    return resp

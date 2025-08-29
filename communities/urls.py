@@ -11,4 +11,5 @@ urlpatterns = [
     path('<slug:slug>/leave/', views.leave_community, name='leave'),
     path('<slug:slug>/c/<slug:channel_slug>/post/', views.post_message, name='post_message'),
     path('<slug:slug>/c/<slug:channel_slug>/feed/', views.messages_feed, name='messages_feed'),
+    path('<slug:slug>/channels/add/', views.channel_create, name='channel_create'),
 ]

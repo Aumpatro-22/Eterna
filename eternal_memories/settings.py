@@ -17,12 +17,12 @@ DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 # Allow Render's external hostname if provided by platform
 RENDER_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')  # CHANGED
-if RENDER_HOSTNAME and RENDER_HOSTNAME not in ALLOWED_HOSTS:  # FIX: complete block
+if RENDER_HOSTNAME and RENDER_HOSTNAME not in ALLOWED_HOSTS:  # FIX block
     ALLOWED_HOSTS.append(RENDER_HOSTNAME)
 
 # NEW: CSRF trusted origins (from Render hostname or env)
 _env_csrf = [o for o in os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',') if o]
-if RENDER_HOSTNAME:  # FIX: complete block
+if RENDER_HOSTNAME:  # FIX block
     _env_csrf.append(f"https://{RENDER_HOSTNAME}")
 CSRF_TRUSTED_ORIGINS = _env_csrf or []
 
@@ -142,5 +142,30 @@ PRODUCTION = bool(os.environ.get('RENDER')) or not DEBUG  # NEW
 SECURE_SSL_REDIRECT = os.environ.get('SECURE_SSL_REDIRECT', 'False') == 'True'
 SESSION_COOKIE_SECURE = os.environ.get('SESSION_COOKIE_SECURE', 'False') == 'True'
 CSRF_COOKIE_SECURE = os.environ.get('CSRF_COOKIE_SECURE', 'False') == 'True'
+
+# Email configuration: console backend by default to avoid ConnectionRefused
+# Only enable SMTP when all required vars are present.
+_email_host = os.environ.get('EMAIL_HOST')
+_email_user = os.environ.get('EMAIL_HOST_USER')
+_email_pass = os.environ.get('EMAIL_HOST_PASSWORD')
+
+if _email_host and _email_user and _email_pass:
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = _email_host
+    EMAIL_HOST_USER = _email_user
+    EMAIL_HOST_PASSWORD = _email_pass
+    EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
+    EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True') == 'True'
+    EMAIL_TIMEOUT = int(os.environ.get('EMAIL_TIMEOUT', 10))
+    DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', _email_user)
+    SERVER_EMAIL = os.environ.get('SERVER_EMAIL', DEFAULT_FROM_EMAIL)
+else:
+    # Safe default: print emails to console/log; password reset won’t try SMTP
+    EMAIL_BACKEND = os.environ.get(
+        'EMAIL_BACKEND',
+        'django.core.mail.backends.console.EmailBackend'
+    )
+    DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'no-reply@localhost')
+    SERVER_EMAIL = os.environ.get('SERVER_EMAIL', DEFAULT_FROM_EMAIL)
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

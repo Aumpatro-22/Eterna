@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: eternal-memories
+    name: eterna
     env: python
     plan: free
     buildCommand: |
@@ -21,3 +21,17 @@ services:
       #   value: your-domain.com,eternal-memories.onrender.com
       # - key: CSRF_TRUSTED_ORIGINS
       #   value: https://your-domain.com,https://eternal-memories.onrender.com
+      # Email: keep console unless you configure SMTP below
+      - key: EMAIL_BACKEND
+        value: django.core.mail.backends.console.EmailBackend
+      # To enable SMTP, set these (prefer setting in Render dashboard secrets):
+      # - key: EMAIL_HOST
+      #   value: smtp.sendgrid.net
+      # - key: EMAIL_HOST_USER
+      #   value: apikey
+      # - key: EMAIL_HOST_PASSWORD
+      #   value: <sendgrid_api_key>
+      # - key: EMAIL_PORT
+      #   value: 587
+      # - key: EMAIL_USE_TLS
+      #   value: True
